@@ -16,7 +16,10 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
-import "./styles.css";
+import "./styles/MainBoardPage.css";
+import "./styles/FormPage.css"
+import "./styles/MyPage.css"
+import "./styles/PostDetailPage.css"
 
 const ProfilePopup = ({ onClose }) => {
   const navigate = useNavigate();

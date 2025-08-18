@@ -1,0 +1,166 @@
+.post-detail-page {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f7f9fc;
+}
+
+.sidebar {
+  width: 280px;
+  background-color: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sidebar-header {
+  margin-bottom: 24px;
+}
+
+.logo-link {
+  font-size: 40px;
+  text-decoration: none;
+}
+
+.top-category-section {
+  width: 100%;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  background-color: #f0f4f8;
+  border-radius: 8px;
+}
+
+.top-category-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #e2e8f0;
+  color: #4a5568;
+  border: none;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.top-category-btn.active {
+  background-color: #d1e2ff;
+  font-weight: 600;
+  color: #0b4e9f;
+}
+
+.category-section {
+  width: 100%;
+}
+
+.category-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 12px;
+}
+
+.category-list {
+  list-style: none;
+  padding: 0;
+}
+
+.category-list li {
+  margin-bottom: 8px;
+}
+
+.category-btn {
+  width: 100%;
+  text-align: left;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background-color: transparent;
+  border: none;
+  font-size: 14px;
+  color: #4a5568;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.category-btn:hover {
+  background-color: #f0f4f8;
+  color: #1e293b;
+}
+
+.category-btn.active {
+  background-color: #d1e2ff;
+  font-weight: 600;
+  color: #0b4e9f;
+}
+
+.post-detail-card {
+  flex-grow: 1;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  margin: 32px;
+  max-width: 800px;
+}
+
+.post-author-section {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.author-avatar {
+  font-size: 24px;
+  margin-right: 12px;
+}
+
+.author-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.author-name {
+  font-weight: 600;
+  color: #334155;
+}
+
+.post-date {
+  font-size: 12px;
+  color: #718096;
+}
+
+.post-image {
+  margin-bottom: 24px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.post-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.post-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 16px;
+}
+
+.post-content {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #4a5568;
+  margin-bottom: 24px;
+}
+
+.post-stats {
+  display: flex;
+  gap: 16px;
+  color: #718096;
+}

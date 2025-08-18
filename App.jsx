@@ -18,11 +18,12 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import "./styles.css";
 
-const ProfilePopup = ({ onClose }) => {
+const ProfilePopup = ({ onClose, onLogout }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
     alert("로그아웃 되었습니다!");
+    onLogout();
     onClose();
     navigate("/");
   };
@@ -63,7 +64,7 @@ const ProfilePopup = ({ onClose }) => {
   );
 };
 //메인보드페이지
-function MainBoardPage() {
+function MainBoardPage({ isLoggedIn, onLogout }) {
   const [posts, setPosts] = useState([]);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const navigate = useNavigate();
@@ -149,23 +150,33 @@ function MainBoardPage() {
                 </button>
               </div>
               <div className="header-actions">
-                <Link to="/signup" className="signup-btn">
-                  회원가입
-                </Link>
-                <Link to="/login" className="login-btn">
-                  로그인
-                </Link>
-                <div className="profile-container">
-                  <button
-                    className="profile-btn"
-                    onClick={() => setShowProfilePopup(!showProfilePopup)}
-                  >
-                    <User />
-                  </button>
-                  {showProfilePopup && (
-                    <ProfilePopup onClose={() => setShowProfilePopup(false)} />
-                  )}
-                </div>
+                {isLoggedIn ? (
+                  // 로그인 상태일 때: 프로필 아이콘과 팝업
+                  <div className="profile-container relative">
+                    <button
+                      className="profile-btn"
+                      onClick={() => setShowProfilePopup(!showProfilePopup)}
+                    >
+                      <User />
+                    </button>
+                    {showProfilePopup && (
+                      <ProfilePopup
+                        onClose={() => setShowProfilePopup(false)}
+                        onLogout={onLogout}
+                      />
+                    )}
+                  </div>
+                ) : (
+                  // 로그아웃 상태일 때: 회원가입, 로그인 버튼
+                  <>
+                    <Link to="/signup" className="signup-btn">
+                      회원가입
+                    </Link>
+                    <Link to="/login" className="login-btn">
+                      로그인
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </header>
@@ -247,11 +258,11 @@ function PostDetailPage() {
           </Link>
         </div>
         <div className="top-category-section">
-      <button className="top-category-btn active">동물/반려동물</button>
-      <button className="top-category-btn">여행</button>
-      <button className="top-category-btn">건강/헬스</button>
-      <button className="top-category-btn">연예인</button>
-    </div>
+          <button className="top-category-btn active">동물/반려동물</button>
+          <button className="top-category-btn">여행</button>
+          <button className="top-category-btn">건강/헬스</button>
+          <button className="top-category-btn">연예인</button>
+        </div>
         <div className="category-section">
           <h3 className="category-title">카테고리</h3>
           <ul className="category-list">
@@ -438,21 +449,90 @@ function SignUpPage() {
     </div>
   );
 }
+// New login page component
+function LoginPage({ onLogin }) {
+  const navigate = useNavigate();
+  const handleLogin = () => {
+    // Call the function passed from the parent component
+    onLogin();
+    navigate("/");
+  };
+
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 font-sans text-gray-800">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-lg">
+        <h2 className="mb-6 text-3xl font-bold">로그인</h2>
+        <div className="space-y-4">
+          <div className="text-left">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              아이디
+            </label>
+            <input
+              type="text"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+          <div className="text-left">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              비밀번호
+            </label>
+            <input
+              type="password"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+          <button
+            className="w-full rounded-xl bg-blue-600 py-3 font-medium text-white shadow transition hover:bg-blue-700"
+            onClick={handleLogin}
+          >
+            로그인
+          </button>
+        </div>
+        <div className="mt-6 text-sm text-gray-500">
+          계정이 없으신가요?{" "}
+          <Link
+            to="/signup"
+            className="font-medium text-blue-600 hover:underline"
+          >
+            회원가입
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // 전체 라우터
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 추가
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    alert("성공적으로 로그인 되었습니다!");
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    alert("로그아웃 되었습니다!");
+  };
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<MainBoardPage />} />
+        <Route
+          path="/"
+          element={
+            <MainBoardPage isLoggedIn={isLoggedIn} onLogout={handleLogout} />
+          }
+        />
         <Route path="/MyPage" element={<MyPage />} />
         <Route path="/change-password" element={<ChangePasswordPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/posts/:id" element={<PostDetailPage />} />
+        <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
       </Routes>
     </Router>
   );
 }
+
 
 
 

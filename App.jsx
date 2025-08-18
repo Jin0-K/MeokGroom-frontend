@@ -246,6 +246,12 @@ function PostDetailPage() {
             ☁️
           </Link>
         </div>
+        <div className="top-category-section">
+      <button className="top-category-btn active">동물/반려동물</button>
+      <button className="top-category-btn">여행</button>
+      <button className="top-category-btn">건강/헬스</button>
+      <button className="top-category-btn">연예인</button>
+    </div>
         <div className="category-section">
           <h3 className="category-title">카테고리</h3>
           <ul className="category-list">
@@ -447,6 +453,7 @@ export default function App() {
     </Router>
   );
 }
+
 
 
 

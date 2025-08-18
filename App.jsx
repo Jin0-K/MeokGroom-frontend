@@ -243,6 +243,33 @@ function PostDetailPage() {
       <button className="back-btn" onClick={() => navigate(-1)}>
         ⬅ 뒤로가기
       </button>
+      <div className="sidebar">
+        <div className="sidebar-header">
+          <Link to="/" className="logo-link">
+            ☁️
+          </Link>
+        </div>
+        <div className="category-section">
+          <h3 className="category-title">카테고리</h3>
+          <ul className="category-list">
+            <li>
+              <button className="category-btn active">전체</button>
+            </li>
+            <li>
+              <button className="category-btn">동물/반려동물</button>
+            </li>
+            <li>
+              <button className="category-btn">여행</button>
+            </li>
+            <li>
+              <button className="category-btn">건강/헬스</button>
+            </li>
+            <li>
+              <button className="category-btn">연예인</button>
+            </li>
+          </ul>
+        </div>
+      </div>
 
       <div className="post-detail-card">
         {/* 작성자 정보 */}
@@ -346,7 +373,9 @@ function ChangePasswordPage() {
   return (
     <div className="app">
       <header className="header">
-        <div className="logo" onClick={() => navigate("/")}>☁️ </div>
+        <div className="logo" onClick={() => navigate("/")}>
+          ☁️
+        </div>
         <div className="user-info">👤 USER1</div>
       </header>
 
@@ -379,7 +408,9 @@ function SignUpPage() {
   return (
     <div className="app">
       <header className="header">
-        <div className="logo" onClick={() => navigate("/")}>☁️</div>
+        <div className="logo" onClick={() => navigate("/")}>
+          ☁️
+        </div>
         <div className="user-info">👤 USER1</div>
       </header>
 
@@ -419,4 +450,6 @@ export default function App() {
     </Router>
   );
 }
+
+
 

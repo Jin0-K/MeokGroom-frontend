@@ -240,9 +240,6 @@ function PostDetailPage() {
 
   return (
     <div className="post-detail-page">
-      <button className="back-btn" onClick={() => navigate(-1)}>
-        ⬅ 뒤로가기
-      </button>
       <div className="sidebar">
         <div className="sidebar-header">
           <Link to="/" className="logo-link">
@@ -450,6 +447,7 @@ export default function App() {
     </Router>
   );
 }
+
 
 
 

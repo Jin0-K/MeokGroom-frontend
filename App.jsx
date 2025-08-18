@@ -346,7 +346,7 @@ function ChangePasswordPage() {
   return (
     <div className="app">
       <header className="header">
-        <div className="logo">☁️</div>
+        <div className="logo" onClick={() => navigate("/")}>☁️ </div>
         <div className="user-info">👤 USER1</div>
       </header>
 
@@ -379,7 +379,7 @@ function SignUpPage() {
   return (
     <div className="app">
       <header className="header">
-        <div className="logo">☁️</div>
+        <div className="logo" onClick={() => navigate("/")}>☁️</div>
         <div className="user-info">👤 USER1</div>
       </header>
 
@@ -419,3 +419,4 @@ export default function App() {
     </Router>
   );
 }
+

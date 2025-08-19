@@ -729,7 +729,7 @@ export default function App() {
         <Route path="/findid" element={<FindIdentificationPage />} />
         <Route path="/findpassword" element={<FindPasswordPage />} />
         <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/posts/:id" element={<PostDetailPage />} />
+        <Route path="/posts/:id" element={<PostDetailPage isLoggedIn={isLoggedIn} onLogout={handleLogout} />} />
         <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
       </Routes>
     </Router>

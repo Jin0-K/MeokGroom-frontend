@@ -431,7 +431,9 @@ function MyPage() {
       {showPopup && (
         <div className="popup-overlay">
           <div className="popup">
-            <div className="popup-icon"><User size={26} /></div>
+            <div className="popup-icon">
+              <User size={26} />
+            </div>
             <p>
               탈퇴 시 회원정보는 복구될 수 없습니다.
               <br />
@@ -463,7 +465,9 @@ function ChangePasswordPage() {
         <div className="logo" onClick={() => navigate("/")}>
           ☁️
         </div>
-        <div className="user-info"><User size={26} /> USER1</div>
+        <div className="user-info">
+          <User size={26} /> USER1
+        </div>
       </header>
 
       <main className="main-box">
@@ -498,7 +502,6 @@ function SignUpPage() {
         <div className="logo" onClick={() => navigate("/")}>
           ☁️
         </div>
-        <div className="user-info"><User size={26} /> USER1</div>
       </header>
 
       <main className="main-box">
@@ -533,6 +536,11 @@ function LoginPage({ onLogin }) {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 font-sans text-gray-800">
+      <header className="header">
+        <div className="logo" onClick={() => navigate("/")}>
+          ☁️
+        </div>
+      </header>
       <div className="w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-lg">
         <h2 className="mb-6 text-3xl font-bold">로그인</h2>
         <div className="space-y-4">
@@ -605,6 +613,7 @@ export default function App() {
     </Router>
   );
 }
+
 
 
 

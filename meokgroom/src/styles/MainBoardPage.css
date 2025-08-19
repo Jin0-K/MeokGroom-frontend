@@ -1,7 +1,9 @@
+/* Overall Layout and Background */
 .main-board-wrapper {
   display: flex;
   min-height: 100vh;
-  background-color: #f7f9fc;
+  background-color: #d6dee7; /* Light blue-gray background */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 .main-board-container {
@@ -9,11 +11,11 @@
   width: 100%;
 }
 
+/* Left Sidebar */
 .sidebar {
-  width: 280px;
-  background-color: #ffffff;
-  border-right: 1px solid #e2e8f0;
-  padding: 24px;
+  width: 250px;
+  background-color: #d6dee7; /* Same background as the wrapper */
+  padding: 32px 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -29,6 +31,7 @@
 .logo-link {
   font-size: 40px;
   text-decoration: none;
+  color: #333;
 }
 
 .category-section {
@@ -36,10 +39,11 @@
 }
 
 .category-title {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
-  color: #334155;
-  margin-bottom: 12px;
+  color: #64748b; /* Gray text for the title */
+  margin-bottom: 16px;
+  text-transform: uppercase;
 }
 
 .category-list {
@@ -48,64 +52,71 @@
 }
 
 .category-list li {
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .category-btn {
   width: 100%;
   text-align: left;
   padding: 10px 16px;
-  border-radius: 8px;
+  border-radius: 9999px; /* Pill shape */
   background-color: transparent;
   border: none;
   font-size: 14px;
-  color: #4a5568;
+  color: #8d98a8;
   transition: all 0.2s;
   cursor: pointer;
 }
 
 .category-btn:hover {
-  background-color: #f0f4f8;
-  color: #1e293b;
+  background-color: #e2e8f0;
 }
 
 .category-btn.active {
-  background-color: #d1e2ff;
+  background-color: #e2e8f0e7; /* Lighter blue for active state */
   font-weight: 600;
-  color: #0b4e9f;
+  color: #313539;
 }
 
+/* Right Main Content Area */
 .main-content-area {
   flex-grow: 1;
   padding: 32px;
+  display: flex;
+  flex-direction: column;
 }
 
+/* Header Styles */
 .main-header {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .right-header-wrapper {
   display: flex;
   align-items: center;
+  gap: 16px;
 }
 
 .search-bar-container {
   display: flex;
   align-items: center;
-  border: 1px solid #e2e8f0;
+  width: 400px;
   border-radius: 9999px;
   background-color: #ffffff;
-  padding: 8px 16px;
-  margin-right: 16px;
+  padding: 12px 24px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
 }
 
 .search-input {
   border: none;
   outline: none;
-  width: 250px;
+  flex-grow: 1;
+  font-size: 16px;
+  color: #64748b;
 }
 
 .search-button {
@@ -113,6 +124,12 @@
   border: none;
   cursor: pointer;
   padding: 0;
+  color: #94a3b8;
+}
+
+.search-button svg {
+  width: 20px;
+  height: 20px;
 }
 
 .header-actions {
@@ -123,67 +140,102 @@
 
 .signup-btn,
 .login-btn {
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 10px 20px;
+  border-radius: 9999px;
   font-weight: 600;
   text-decoration: none;
   transition: all 0.2s;
+  font-size: 14px;
 }
 
 .signup-btn {
-  background-color: #4c6ef5;
-  color: #ffffff;
+  background-color: #f1f1f1;
+  color: rgb(83, 94, 138);
+  border: none;
 }
 
 .login-btn {
-  border: 1px solid #e2e8f0;
-  color: #4a5568;
+  background-color: rgb(83, 94, 138);
+  color: #f1f1f1;
+  border: none;
 }
 
+.profile-container {
+  position: relative;
+}
+
+.profile-btn {
+  background-color: #fff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+}
+
+/* Sort buttons styles */
 .sort-buttons {
   margin-bottom: 24px;
+  display: flex;
 }
 
 .sort-btn {
-  padding: 8px 16px;
-  border-radius: 9999px;
-  background-color: #e2e8f0;
-  color: #4a5568;
+  background: none;
   border: none;
-  margin-right: 8px;
+  font-size: 16px;
+  color: #5e6d82;
   cursor: pointer;
-  transition: all 0.2s;
+  padding-bottom: 8px;
+  margin-right: 24px;
+  position: relative;
+  font-weight: 500;
 }
 
 .sort-btn.active {
-  background-color: #4c6ef5;
-  color: #ffffff;
+  color: #1e293b;
+  font-weight: 600;
 }
 
+.sort-btn.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #1e293b;
+}
+
+/* Post List */
 .post-list {
-  display: grid;
-  gap: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .post-card {
-  background-color: #ffffff;
+  background-color: #fffffffa;
   border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  cursor: pointer;
-  transition: transform 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #e2e8f0;
 }
 
 .post-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
 .post-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .post-author {
@@ -196,7 +248,7 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  color: #718096;
+  color: #94a3b8;
 }
 
 .stat-item {
@@ -205,38 +257,56 @@
   gap: 4px;
 }
 
+.stat-item svg {
+  width: 16px;
+  height: 16px;
+}
+
 .stat-count {
   font-size: 14px;
 }
 
 .post-content {
   font-size: 14px;
-  color: #4a5568;
+  color: #475569;
   line-height: 1.5;
 }
 
 .no-posts-message {
   text-align: center;
   color: #718096;
+  margin-top: 5rem;
 }
 
+/* Pagination */
 .pagination {
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 8px;
   margin-top: 24px;
 }
 
 .page-btn {
-  padding: 8px 12px;
-  border-radius: 8px;
-  background-color: #e2e8f0;
-  color: #4a5568;
+  background-color: transparent;
   border: none;
-  margin: 0 4px;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: #94a3b8;
   cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.page-btn:hover {
+  background-color: #e2e8f0;
 }
 
 .page-btn.active {
-  background-color: #4c6ef5;
-  color: #ffffff;
+  color: #1e293b;
 }
+

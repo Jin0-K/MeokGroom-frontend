@@ -68,7 +68,10 @@ function MainBoardPage({ isLoggedIn, onLogout }) {
   const [posts, setPosts] = useState([]);
   const [sortOrder, setSortOrder] = useState("latest");
   const [showProfilePopup, setShowProfilePopup] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1); // ✅ 현재 페이지 상태
+  const [postsPerPage] = useState(10); // ✅ 한 페이지당 게시물 수 (상수로 설정)
   const sortedPosts = [...posts].sort((a, b) => {
     if (sortOrder === "popular") {
       return b.likes - a.likes; // 좋아요 수 기준 내림차순
@@ -76,13 +79,36 @@ function MainBoardPage({ isLoggedIn, onLogout }) {
     // 기본값은 최신순 (id 기준 내림차순)
     return b.id - a.id;
   });
+  // ✅ 게시물 필터링 및 정렬 로직
+  const filteredPosts = posts.filter(
+    (post) =>
+      post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post.userName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const sortedAndFilteredPosts = [...filteredPosts].sort((a, b) => {
+    if (sortOrder === "popular") {
+      return b.likes - a.likes;
+    }
+    return b.id - a.id;
+  });
+  // ✅ 페이지네이션을 위한 게시물 인덱스 계산
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = sortedAndFilteredPosts.slice(
+    indexOfFirstPost,
+    indexOfLastPost
+  );
+
+  // ✅ 총 페이지 수 계산
+  const totalPages = Math.ceil(sortedAndFilteredPosts.length / postsPerPage);
   useEffect(() => {
     // JSONPlaceholder API 호출
     fetch("https://jsonplaceholder.typicode.com/posts")
       .then((res) => res.json())
       .then((data) => {
         // 상위 5개만 변환해서 보여주도록 예시
-        const mapped = data.slice(0, 5).map((p) => ({
+        const mapped = data.map((p) => ({
           id: p.id,
           userName: `User ${p.userId}`,
           content: p.title,
@@ -187,7 +213,6 @@ function MainBoardPage({ isLoggedIn, onLogout }) {
               </div>
             </div>
           </header>
-
           <div className="sort-buttons">
             <button
               className={`sort-btn ${sortOrder === "latest" ? "active" : ""}`}
@@ -202,9 +227,8 @@ function MainBoardPage({ isLoggedIn, onLogout }) {
               인기순
             </button>
           </div>
-
           <div className="post-list">
-            {sortedPosts.map((post) => (
+            {currentPosts.map((post) => (
               <div
                 key={post.id}
                 className="post-card"
@@ -227,15 +251,27 @@ function MainBoardPage({ isLoggedIn, onLogout }) {
                 <p className="post-content">{post.content}</p>
               </div>
             ))}
-            {posts.length === 0 && (
+            {currentPosts.length === 0 && (
               <p className="no-posts-message">작성한 게시글이 없습니다.</p>
             )}
-            <div className="pagination">
-              <button className="page-btn active">1</button>
-              <button className="page-btn">2</button>
-              <button className="page-btn">3</button>
-            </div>
           </div>
+          {totalPages > 1 && (
+            <div className="pagination flex justify-center mt-8 space-x-2">
+              {[...Array(totalPages)].map((_, index) => (
+                <button
+                  key={index + 1}
+                  onClick={() => setCurrentPage(index + 1)} // ✅ 클릭 시 페이지 변경
+                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
+                    currentPage === index + 1
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -613,7 +649,6 @@ export default function App() {
     </Router>
   );
 }
-
 
 
 

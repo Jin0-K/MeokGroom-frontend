@@ -18,11 +18,12 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import "./styles.css";
 
-const ProfilePopup = ({ onClose }) => {
+const ProfilePopup = ({ onClose, onLogout }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
     alert("로그아웃 되었습니다!");
+    onLogout();
     onClose();
     navigate("/");
   };
@@ -36,7 +37,7 @@ const ProfilePopup = ({ onClose }) => {
     <div className="absolute right-0 top-12 z-50 w-64 rounded-xl bg-white p-4 shadow-xl ring-1 ring-gray-200">
       <div className="flex items-center space-x-3 border-b pb-4">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-          <User size={24} />
+          <User size={26} />
         </div>
         <div className="flex-1">
           <p className="text-lg font-bold text-gray-800">USER_A</p>
@@ -63,11 +64,18 @@ const ProfilePopup = ({ onClose }) => {
   );
 };
 //메인보드페이지
-function MainBoardPage() {
+function MainBoardPage({ isLoggedIn, onLogout }) {
   const [posts, setPosts] = useState([]);
+  const [sortOrder, setSortOrder] = useState("latest");
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const navigate = useNavigate();
-
+  const sortedPosts = [...posts].sort((a, b) => {
+    if (sortOrder === "popular") {
+      return b.likes - a.likes; // 좋아요 수 기준 내림차순
+    }
+    // 기본값은 최신순 (id 기준 내림차순)
+    return b.id - a.id;
+  });
   useEffect(() => {
     // JSONPlaceholder API 호출
     fetch("https://jsonplaceholder.typicode.com/posts")
@@ -149,34 +157,54 @@ function MainBoardPage() {
                 </button>
               </div>
               <div className="header-actions">
-                <Link to="/signup" className="signup-btn">
-                  회원가입
-                </Link>
-                <Link to="/login" className="login-btn">
-                  로그인
-                </Link>
-                <div className="profile-container">
-                  <button
-                    className="profile-btn"
-                    onClick={() => setShowProfilePopup(!showProfilePopup)}
-                  >
-                    <User />
-                  </button>
-                  {showProfilePopup && (
-                    <ProfilePopup onClose={() => setShowProfilePopup(false)} />
-                  )}
-                </div>
+                {isLoggedIn ? (
+                  // 로그인 상태일 때: 프로필 아이콘과 팝업
+                  <div className="profile-container relative">
+                    <button
+                      className="profile-btn"
+                      onClick={() => setShowProfilePopup(!showProfilePopup)}
+                    >
+                      <User />
+                    </button>
+                    {showProfilePopup && (
+                      <ProfilePopup
+                        onClose={() => setShowProfilePopup(false)}
+                        onLogout={onLogout}
+                      />
+                    )}
+                  </div>
+                ) : (
+                  // 로그아웃 상태일 때: 회원가입, 로그인 버튼
+                  <>
+                    <Link to="/signup" className="signup-btn">
+                      회원가입
+                    </Link>
+                    <Link to="/login" className="login-btn">
+                      로그인
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </header>
 
           <div className="sort-buttons">
-            <button className="sort-btn active">최신순</button>
-            <button className="sort-btn">인기순</button>
+            <button
+              className={`sort-btn ${sortOrder === "latest" ? "active" : ""}`}
+              onClick={() => setSortOrder("latest")} // ✅ 최신순 버튼 클릭 시 상태 변경
+            >
+              최신순
+            </button>
+            <button
+              className={`sort-btn ${sortOrder === "popular" ? "active" : ""}`}
+              onClick={() => setSortOrder("popular")} // ✅ 인기순 버튼 클릭 시 상태 변경
+            >
+              인기순
+            </button>
           </div>
 
           <div className="post-list">
-            {posts.map((post) => (
+            {sortedPosts.map((post) => (
               <div
                 key={post.id}
                 className="post-card"
@@ -214,7 +242,7 @@ function MainBoardPage() {
   );
 }
 //개별포스
-function PostDetailPage() {
+function PostDetailPage({ isLoggedIn, onLogout }) {
   const { id } = useParams();
   const [post, setPost] = useState(null);
   const navigate = useNavigate();
@@ -240,6 +268,58 @@ function PostDetailPage() {
 
   return (
     <div className="post-detail-page">
+      <header className="main-header">
+        <div className="right-header-wrapper">
+          <div className="search-bar-container">
+            <input type="text" placeholder="검색" className="search-input" />
+            <button className="search-button">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </button>
+          </div>
+          <div className="header-actions">
+            {isLoggedIn ? (
+              // 로그인 상태일 때: 프로필 아이콘과 팝업
+              <div className="profile-container relative">
+                <button
+                  className="profile-btn"
+                  onClick={() => setShowProfilePopup(!showProfilePopup)}
+                >
+                  <User />
+                </button>
+                {showProfilePopup && (
+                  <ProfilePopup
+                    onClose={() => setShowProfilePopup(false)}
+                    onLogout={onLogout}
+                  />
+                )}
+              </div>
+            ) : (
+              // 로그아웃 상태일 때: 회원가입, 로그인 버튼
+              <>
+                <Link to="/signup" className="signup-btn">
+                  회원가입
+                </Link>
+                <Link to="/login" className="login-btn">
+                  로그인
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      </header>
       <div className="sidebar">
         <div className="sidebar-header">
           <Link to="/" className="logo-link">
@@ -247,11 +327,11 @@ function PostDetailPage() {
           </Link>
         </div>
         <div className="top-category-section">
-      <button className="top-category-btn active">동물/반려동물</button>
-      <button className="top-category-btn">여행</button>
-      <button className="top-category-btn">건강/헬스</button>
-      <button className="top-category-btn">연예인</button>
-    </div>
+          <button className="top-category-btn active">동물/반려동물</button>
+          <button className="top-category-btn">여행</button>
+          <button className="top-category-btn">건강/헬스</button>
+          <button className="top-category-btn">연예인</button>
+        </div>
         <div className="category-section">
           <h3 className="category-title">카테고리</h3>
           <ul className="category-list">
@@ -321,13 +401,17 @@ function MyPage() {
         <div className="logo" onClick={() => navigate("/")}>
           ☁️
         </div>
-        <div className="user-info">👤 USER1</div>
+        <div className="user-info">
+          <User size={26} /> User1
+        </div>
       </header>
 
       {/* ✅ 메인 컨텐츠 영역 수정 */}
       <main className="main-content">
         <div className="profile-section">
-          <div className="profile-icon">👤</div>
+          <div className="profile-icon">
+            <User size={100} />
+          </div>
           <h2>Welcome, User1</h2>
         </div>
         <div className="menu-buttons">
@@ -347,7 +431,7 @@ function MyPage() {
       {showPopup && (
         <div className="popup-overlay">
           <div className="popup">
-            <div className="popup-icon">👤✏️</div>
+            <div className="popup-icon"><User size={26} /></div>
             <p>
               탈퇴 시 회원정보는 복구될 수 없습니다.
               <br />
@@ -379,7 +463,7 @@ function ChangePasswordPage() {
         <div className="logo" onClick={() => navigate("/")}>
           ☁️
         </div>
-        <div className="user-info">👤 USER1</div>
+        <div className="user-info"><User size={26} /> USER1</div>
       </header>
 
       <main className="main-box">
@@ -414,7 +498,7 @@ function SignUpPage() {
         <div className="logo" onClick={() => navigate("/")}>
           ☁️
         </div>
-        <div className="user-info">👤 USER1</div>
+        <div className="user-info"><User size={26} /> USER1</div>
       </header>
 
       <main className="main-box">
@@ -438,17 +522,85 @@ function SignUpPage() {
     </div>
   );
 }
+// New login page component
+function LoginPage({ onLogin }) {
+  const navigate = useNavigate();
+  const handleLogin = () => {
+    // Call the function passed from the parent component
+    onLogin();
+    navigate("/");
+  };
+
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 font-sans text-gray-800">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-lg">
+        <h2 className="mb-6 text-3xl font-bold">로그인</h2>
+        <div className="space-y-4">
+          <div className="text-left">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              아이디
+            </label>
+            <input
+              type="text"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+          <div className="text-left">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              비밀번호
+            </label>
+            <input
+              type="password"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+          <button
+            className="w-full rounded-xl bg-blue-600 py-3 font-medium text-white shadow transition hover:bg-blue-700"
+            onClick={handleLogin}
+          >
+            로그인
+          </button>
+        </div>
+        <div className="mt-6 text-sm text-gray-500">
+          계정이 없으신가요?{" "}
+          <Link
+            to="/signup"
+            className="font-medium text-blue-600 hover:underline"
+          >
+            회원가입
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // 전체 라우터
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 추가
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    alert("성공적으로 로그인 되었습니다!");
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    alert("로그아웃 되었습니다!");
+  };
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<MainBoardPage />} />
+        <Route
+          path="/"
+          element={
+            <MainBoardPage isLoggedIn={isLoggedIn} onLogout={handleLogout} />
+          }
+        />
         <Route path="/MyPage" element={<MyPage />} />
         <Route path="/change-password" element={<ChangePasswordPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/posts/:id" element={<PostDetailPage />} />
+        <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
       </Routes>
     </Router>
   );

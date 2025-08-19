@@ -282,7 +282,7 @@ function PostDetailPage({ isLoggedIn, onLogout }) {
   const { id } = useParams();
   const [post, setPost] = useState(null);
   const navigate = useNavigate();
-
+  const [showProfilePopup, setShowProfilePopup] = useState(false);
   useEffect(() => {
     fetch(`https://jsonplaceholder.typicode.com/posts/${id}`)
       .then((res) => res.json())

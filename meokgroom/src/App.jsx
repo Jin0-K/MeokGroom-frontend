@@ -613,12 +613,96 @@ function LoginPage({ onLogin }) {
           >
             회원가입
           </Link>
+          <div className="mt-6 text-sm text-gray-500">
+            아이디를 까먹으셨나요?
+            <Link
+              to="/findid"
+              className="font-medium text-blue-600 hover:underline"
+            >
+              아이디 찾기
+            </Link>
+          </div>
+          <div className="mt-6 text-sm text-gray-500">
+            비밀번호를 까먹으셨나요?
+            <Link
+              to="/findpassword"
+              className="font-medium text-blue-600 hover:underline"
+            >
+              비밀번호 찾기
+            </Link>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
+// 아이디 찾는 페이지
+function FindIdentificationPage() {
+  const navigate = useNavigate();
+
+  const handleComplete = () => {
+    alert("아이디 정보를 해당 이메일에 전송했습니다!");
+    navigate("/");
+  };
+
+  return (
+    <div className="app">
+      <header className="header">
+        <div className="logo" onClick={() => navigate("/")}>
+          ☁️
+        </div>
+        <div className="user-info"></div>
+      </header>
+
+      <main className="main-box">
+        <h2>아이디 찾기</h2>
+        <div className="form-group">
+          <label>Email</label>
+          <input type="Email" />
+        </div>
+
+        <button className="menu-btn" onClick={handleComplete}>
+          완료
+        </button>
+      </main>
+    </div>
+  );
+}
+// 비밀번호 찾는 페이지
+function FindPasswordPage() {
+  const navigate = useNavigate();
+
+  const handleComplete = () => {
+    alert("초기화된 비밀번호를 해당 이메일에 전송했습니다!");
+    navigate("/");
+  };
+
+  return (
+    <div className="app">
+      <header className="header">
+        <div className="logo" onClick={() => navigate("/")}>
+          ☁️
+        </div>
+        <div className="user-info"></div>
+      </header>
+
+      <main className="main-box">
+        <h2>비밀번호 찾기</h2>
+        <div className="form-group">
+          <label>ID</label>
+          <input type="ID" />
+          <label>Email</label>
+          <input type="Email" />
+        </div>
+
+        <button className="menu-btn" onClick={handleComplete}>
+          완료
+        </button>
+      </main>
+    </div>
+  );
+}
 // 전체 라우터
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 추가
@@ -642,6 +726,8 @@ export default function App() {
         />
         <Route path="/MyPage" element={<MyPage />} />
         <Route path="/change-password" element={<ChangePasswordPage />} />
+        <Route path="/findid" element={<FindIdentificationPage />} />
+        <Route path="/findpassword" element={<FindPasswordPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/posts/:id" element={<PostDetailPage />} />
         <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
@@ -649,8 +735,3 @@ export default function App() {
     </Router>
   );
 }
-
-
-
-
-

@@ -1313,7 +1313,6 @@ export default function App() {
             <NewPostPage
               isLoggedIn={isLoggedIn}
               profileImage={profileImage}
-              profileImage={profileImage}
               onAddPost={addPost}
             />
           }

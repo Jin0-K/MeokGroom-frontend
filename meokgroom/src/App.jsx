@@ -15,6 +15,8 @@ import {
   Heart,
   MessageCircle,
   ChevronLeft,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import "./styles.css";
@@ -82,6 +84,7 @@ function MainBoardPage({
   posts,
   setPosts,
 }) {
+  const [searchText, setSearchText] = useState("");
   const [sortOrder, setSortOrder] = useState("latest");
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -94,6 +97,8 @@ function MainBoardPage({
     (post) =>
       (activeCategory === "전체" || post.category === activeCategory) &&
       (post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (post.title &&
+          post.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
         post.userName.toLowerCase().includes(searchTerm.toLowerCase()))
   );
   const sortedAndFilteredPosts = [...filteredPosts].sort((a, b) => {
@@ -130,7 +135,9 @@ function MainBoardPage({
     setNewPostContent(""); // ✅ 입력창 초기화
     setIsModalOpen(false); // ✅ 모달 닫기
   };
-
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
   return (
     <div className="main-board-wrapper">
       <div className="main-board-container">
@@ -341,16 +348,97 @@ function PostDetailPage({ isLoggedIn, onLogout, profileImage }) {
       return { ...prevPost, likes: prevPost.likes + 1 };
     });
   };
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState("");
+
   const [comments, setComments] = useState([]); // ✅ 댓글 상태 추가
   const [newComment, setNewComment] = useState(""); // ✅ 새 댓글 입력값
+  // 댓글 추가 기능
   const handleAddComment = () => {
     if (!newComment.trim()) return;
-    setComments((prev) => [
-      ...prev,
-      { id: uuidv4(), user: "User1", text: newComment },
-    ]);
+    const newCommentObj = {
+      id: uuidv4(),
+      user: "USER_A", // 로그인된 사용자 이름
+      text: newComment,
+    };
+
+    const updatedComments = [...comments, newCommentObj];
+    setComments(updatedComments);
     setNewComment("");
+    // 게시물 수정 기능
+    const handleEditPost = () => {
+      if (isEditing) {
+        const updatedPosts = posts.map((p) =>
+          p.id === post.id ? { ...p, content: editedContent } : p
+        );
+        setPosts(updatedPosts);
+        setIsEditing(false);
+      } else {
+        setIsEditing(true);
+        setEditedContent(post.content);
+      }
+    };
+
+    // Update the main post's comment count and list
+    const updatedPosts = posts.map((p) =>
+      p.id === post.id
+        ? { ...p, comments: p.comments + 1, commentList: updatedComments }
+        : p
+    );
+    setPosts(updatedPosts);
   };
+  // 게시물 삭제 기능
+  const handleDeletePost = () => {
+    if (window.confirm("게시물을 정말 삭제하시겠습니까?")) {
+      const updatedPosts = posts.filter((p) => p.id !== post.id);
+      setPosts(updatedPosts);
+      navigate("/");
+    }
+  };
+  // 게시물 수정 기능
+  const handleEditPost = () => {
+    if (isEditing) {
+      const updatedPosts = posts.map((p) =>
+        p.id === post.id ? { ...p, content: editedContent } : p
+      );
+      setPosts(updatedPosts);
+      setIsEditing(false);
+    } else {
+      setIsEditing(true);
+      setEditedContent(post.content);
+    }
+  };
+  // 댓글 수정 기능
+  const handleEditComment = (commentId, text) => {
+    if (editingCommentId === commentId) {
+      // Save changes
+      const updatedComments = comments.map((c) =>
+        c.id === commentId ? { ...c, text: editedCommentText } : c
+      );
+      setComments(updatedComments);
+      setEditingCommentId(null);
+    } else {
+      // Enter edit mode
+      setEditingCommentId(commentId);
+      setEditedCommentText(text);
+    }
+  };
+  // 댓글 삭제 기능
+  const handleDeleteComment = (commentId) => {
+    if (window.confirm("댓글을 삭제하시겠습니까?")) {
+      const updatedComments = comments.filter((c) => c.id !== commentId);
+      setComments(updatedComments);
+
+      // Update the main post's comment count and list
+      const updatedPosts = posts.map((p) =>
+        p.id === post.id
+          ? { ...p, comments: p.comments - 1, commentList: updatedComments }
+          : p
+      );
+      setPosts(updatedPosts);
+    }
+  };
+
   const { id } = useParams();
   const [post, setPost] = useState(state || null);
 
@@ -442,12 +530,7 @@ function PostDetailPage({ isLoggedIn, onLogout, profileImage }) {
             ☁️
           </Link>
         </div>
-        <div className="top-category-section">
-          <button className="top-category-btn active">동물/반려동물</button>
-          <button className="top-category-btn">여행</button>
-          <button className="top-category-btn">건강/헬스</button>
-          <button className="top-category-btn">연예인</button>
-        </div>
+        <div className="top-category-section"></div>
         <div className="category-section">
           <h3 className="category-title">카테고리</h3>
           <ul className="category-list">
@@ -503,6 +586,20 @@ function PostDetailPage({ isLoggedIn, onLogout, profileImage }) {
             <MessageCircle /> {post.comments}
           </span>
         </div>
+        <div className="post-actions">
+          <button onClick={handleEditPost} className="action-btn">
+            <img
+              src="https://img.icons8.com/material-outlined/24/000000/pencil--v1.png"
+              alt="Edit"
+            />
+          </button>
+          <button onClick={handleDeletePost} className="action-btn">
+            <img
+              src="https://img.icons8.com/material-outlined/24/000000/trash--v1.png"
+              alt="Delete"
+            />
+          </button>
+        </div>
         {/* 댓글 작성란 */}
         <div className="comment-section">
           <h3>댓글</h3>
@@ -520,6 +617,20 @@ function PostDetailPage({ isLoggedIn, onLogout, profileImage }) {
             >
               등록
             </button>
+            <div className="post-actions">
+              <button onClick={handleEditComment} className="action-btn">
+                <img
+                  src="https://img.icons8.com/material-outlined/24/000000/pencil--v1.png"
+                  alt="Edit"
+                />
+              </button>
+              <button onClick={handleDeleteComment} className="action-btn">
+                <img
+                  src="https://img.icons8.com/material-outlined/24/000000/trash--v1.png"
+                  alt="Delete"
+                />
+              </button>
+            </div>
           </div>
 
           {/* 댓글 목록 */}
@@ -1163,7 +1274,6 @@ export default function App() {
   const handleLogout = () => {
     setIsLoggedIn(false);
     setProfileImage(null); // 로그아웃 시 프로필 이미지 초기화
-    alert("로그아웃 되었습니다!");
   };
   const addPost = (newPost) => {
     setPosts((prevPosts) => [newPost, ...prevPosts]); // ✅ 새 게시물 추가 함수

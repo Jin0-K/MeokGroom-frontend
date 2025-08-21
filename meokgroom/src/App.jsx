@@ -17,19 +17,14 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
-import "./styles/MainBoardPage.css";
-import "./styles/FormPage.css"
-import "./styles/MyPage.css"
-import "./styles/PostDetailPage.css"
-import "./styles/ProfilePopup.css"
-import "./styles/LoginPage.css"
+import "./styles.css";
 
 // ✅ 프로필 이미지 업로드 기능이 추가된 ProfilePopup
 const ProfilePopup = ({ onClose, onLogout, profileImage }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Replace alert with a modal or other non-blocking UI
+    alert("로그아웃 되었습니다!");
     onLogout();
     onClose();
     navigate("/");
@@ -41,28 +36,38 @@ const ProfilePopup = ({ onClose, onLogout, profileImage }) => {
   };
 
   return (
-    <div className="profile-popup">
-      <div className="user-info-section">
-        <div className="user-avatar-container">
-          <User size={30} />
+    <div className="absolute right-0 top-12 z-50 w-64 rounded-xl bg-white p-4 shadow-xl ring-1 ring-gray-200">
+      <div className="flex items-center space-x-3 border-b pb-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+          {profileImage ? (
+            <img
+              src={profileImage}
+              alt="Profile"
+              className="h-full w-full rounded-full object-cover"
+            />
+          ) : (
+            <User size={26} />
+          )}
         </div>
-        <div className="user-text-info">
-          <p className="user-name">USER_A</p>
-          <p className="user-email">user1-test@gmail.com</p>
+        <div className="flex-1">
+          <p className="text-lg font-bold text-gray-800">USER_A</p>
+          <p className="text-sm text-gray-500">user1-test@gmail.com</p>
         </div>
       </div>
-      <div className="profile-actions-section">
+      <div className="mt-4 space-y-2">
         <button
-          className="profile-action-btn"
+          className="flex w-full items-center space-x-2 rounded-lg p-2 text-left text-gray-700 transition hover:bg-gray-100"
           onClick={handleMyPage}
         >
-          마이 페이지
+          <User size={20} />
+          <span>마이페이지</span>
         </button>
         <button
-          className="profile-action-btn"
+          className="flex w-full items-center space-x-2 rounded-lg p-2 text-left text-gray-700 transition hover:bg-gray-100"
           onClick={handleLogout}
         >
-          로그아웃
+          <LogOut size={20} />
+          <span>로그아웃</span>
         </button>
       </div>
     </div>
@@ -70,8 +75,13 @@ const ProfilePopup = ({ onClose, onLogout, profileImage }) => {
 };
 
 // 메인보드페이지
-function MainBoardPage({ isLoggedIn, onLogout, profileImage }) {
-  const [posts, setPosts] = useState([]);
+function MainBoardPage({
+  isLoggedIn,
+  onLogout,
+  profileImage,
+  posts,
+  setPosts,
+}) {
   const [sortOrder, setSortOrder] = useState("latest");
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -79,10 +89,12 @@ function MainBoardPage({ isLoggedIn, onLogout, profileImage }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [postsPerPage] = useState(10);
   const [newPostContent, setNewPostContent] = useState("");
+  const [activeCategory, setActiveCategory] = useState("전체");
   const filteredPosts = posts.filter(
     (post) =>
-      post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      post.userName.toLowerCase().includes(searchTerm.toLowerCase())
+      (activeCategory === "전체" || post.category === activeCategory) &&
+      (post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.userName.toLowerCase().includes(searchTerm.toLowerCase()))
   );
   const sortedAndFilteredPosts = [...filteredPosts].sort((a, b) => {
     if (sortOrder === "popular") {
@@ -98,6 +110,7 @@ function MainBoardPage({ isLoggedIn, onLogout, profileImage }) {
   );
   const totalPages = Math.ceil(sortedAndFilteredPosts.length / postsPerPage);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const categories = ["전체", "동물/반려동물", "여행", "건강/헬스", "연예인"];
   const handlePostSubmit = (e) => {
     e.preventDefault();
     if (newPostContent.trim() === "") {
@@ -117,23 +130,6 @@ function MainBoardPage({ isLoggedIn, onLogout, profileImage }) {
     setNewPostContent(""); // ✅ 입력창 초기화
     setIsModalOpen(false); // ✅ 모달 닫기
   };
-  useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/posts")
-      .then((res) => res.json())
-      .then((data) => {
-        const mapped = data.map((p) => ({
-          id: p.id,
-          userName: `User ${p.userId}`,
-          content: p.title,
-          likes: Math.floor(Math.random() * 100),
-          comments: Math.floor(Math.random() * 20),
-        }));
-        setPosts(mapped);
-      })
-      .catch((err) => {
-        console.error("API 호출 에러:", err);
-      });
-  }, []);
 
   return (
     <div className="main-board-wrapper">
@@ -148,21 +144,18 @@ function MainBoardPage({ isLoggedIn, onLogout, profileImage }) {
           <div className="category-section">
             <h3 className="category-title">카테고리</h3>
             <ul className="category-list">
-              <li>
-                <button className="category-btn active">전체</button>
-              </li>
-              <li>
-                <button className="category-btn">동물/반려동물</button>
-              </li>
-              <li>
-                <button className="category-btn">여행</button>
-              </li>
-              <li>
-                <button className="category-btn">건강/헬스</button>
-              </li>
-              <li>
-                <button className="category-btn">연예인</button>
-              </li>
+              {categories.map((category) => (
+                <li key={category}>
+                  <button
+                    className={`category-btn ${
+                      activeCategory === category ? "active" : ""
+                    }`}
+                    onClick={() => setActiveCategory(category)}
+                  >
+                    {category}
+                  </button>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
@@ -254,7 +247,7 @@ function MainBoardPage({ isLoggedIn, onLogout, profileImage }) {
                 className="post-create-btn"
                 onClick={() => navigate("/new-post")}
               >
-                + 새 게시물 작성
+                새 게시물 작성
               </button>
             )}
           </div>
@@ -621,7 +614,9 @@ function MyPage({ profileImage, setProfileImage }) {
           >
             비밀번호 변경
           </button>
-          <button className="menu-btn">작성글 조회</button>
+          <button className="menu-btn" onClick={() => navigate("/myposts")}>
+            작성글 조회
+          </button>
           <button className="menu-btn" onClick={() => setShowPopup(true)}>
             계정 탈퇴
           </button>
@@ -726,7 +721,6 @@ function SignUpPage() {
   );
 }
 // New login page component
-// New login page component
 function LoginPage({ onLogin }) {
   const navigate = useNavigate();
   const handleLogin = () => {
@@ -736,58 +730,65 @@ function LoginPage({ onLogin }) {
   };
 
   return (
-    <div className="login-page-container">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 font-sans text-gray-800">
       <header className="header">
         <div className="logo" onClick={() => navigate("/")}>
           ☁️
         </div>
       </header>
-      <div className="login-box">
-        <h2 className="login-header">로그인</h2>
-        <div className="form-content-group">
-          <div className="form-field-group">
-            <label className="input-label">아이디</label>
+      <div className="w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-lg">
+        <h2 className="mb-6 text-3xl font-bold">로그인</h2>
+        <div className="space-y-4">
+          <div className="text-left">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              아이디
+            </label>
             <input
               type="text"
-              className="form-input"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
-          <div className="form-field-group">
-            <label className="input-label">비밀번호</label>
+          <div className="text-left">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              비밀번호
+            </label>
             <input
               type="password"
-              className="form-input"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
           <button
-            className="login-button"
+            className="w-full rounded-xl bg-blue-600 py-3 font-medium text-white shadow transition hover:bg-blue-700"
             onClick={handleLogin}
           >
             로그인
           </button>
         </div>
-        <div className="link-group">
-          <p className="link-text">
-            계정이 없으신가요?{" "}
-            <Link to="/signup" className="link-btn">
-              회원가입
+        <div className="mt-6 text-sm text-gray-500">
+          계정이 없으신가요?{" "}
+          <Link
+            to="/signup"
+            className="font-medium text-blue-600 hover:underline"
+          >
+            회원가입
+          </Link>
+          <div className="mt-6 text-sm text-gray-500">
+            아이디를 까먹으셨나요?
+            <Link
+              to="/findid"
+              className="font-medium text-blue-600 hover:underline"
+            >
+              아이디 찾기
             </Link>
-          </p>
-          <div className="link-text-divider">
-            <p className="link-text">
-              아이디를 까먹으셨나요?
-              <Link to="/findid" className="link-btn">
-                아이디 찾기
-              </Link>
-            </p>
           </div>
-          <div className="link-text-divider">
-            <p className="link-text">
-              비밀번호를 까먹으셨나요?
-              <Link to="/findpassword" className="link-btn">
-                비밀번호 찾기
-              </Link>
-            </p>
+          <div className="mt-6 text-sm text-gray-500">
+            비밀번호를 까먹으셨나요?
+            <Link
+              to="/findpassword"
+              className="font-medium text-blue-600 hover:underline"
+            >
+              비밀번호 찾기
+            </Link>
           </div>
         </div>
       </div>
@@ -861,7 +862,7 @@ function FindPasswordPage() {
   );
 }
 // 사용자에게 로그인 여부와 프로필 이미지를 받습니다.
-function NewPostPage({ isLoggedIn, profileImage }) {
+function NewPostPage({ isLoggedIn, profileImage, onAddPost }) {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -874,12 +875,16 @@ function NewPostPage({ isLoggedIn, profileImage }) {
       alert("제목, 내용, 카테고리를 모두 입력해주세요.");
       return;
     }
-    // 게시물 작성 로직 (서버에 데이터 전송 등)
-    console.log("새 게시물 작성 완료:", {
-      title,
-      content,
+    const newPost = {
+      id: uuidv4(),
+      userName: "USER_A",
+      content: content,
+      title: title,
       category: selectedCategory,
-    });
+      likes: 0,
+      comments: 0,
+    };
+    onAddPost(newPost);
     alert("게시물 작성이 완료되었습니다.");
     navigate("/"); // 작성 후 메인 페이지로 이동
   };
@@ -993,12 +998,163 @@ function NewPostPage({ isLoggedIn, profileImage }) {
     </div>
   );
 }
+// 작성글조회페이지
+// MyPostsPage 컴포넌트는 App.js에서 'posts' 상태와 'isLoggedIn' 등을 prop으로 받습니다.
+function MyPostsPage({ isLoggedIn, profileImage, posts }) {
+  const navigate = useNavigate();
+  const currentUserName = "USER_A"; // 로그인한 사용자 이름 가정
+  const [activeCategory, setActiveCategory] = useState("전체");
+
+  const myPosts = posts.filter(
+    (post) =>
+      post.userName === currentUserName &&
+      (activeCategory === "전체" || post.category === activeCategory)
+  );
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 10;
+
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = myPosts.slice(indexOfFirstPost, indexOfLastPost);
+  const totalPages = Math.ceil(myPosts.length / postsPerPage);
+
+  const categories = ["전체", "동물/반려동물", "여행", "건강/헬스", "연예인"];
+
+  return (
+    <div className="myposts-page-container">
+      <header className="main-header">
+        <div className="logo" onClick={() => navigate("/")}>
+          ☁️
+        </div>
+        <div className="right-header-wrapper">
+          <div className="search-bar-container">{/* 검색창 */}</div>
+          <div className="header-actions">
+            {isLoggedIn && (
+              <div className="profile-container relative">
+                <button className="profile-btn">
+                  {profileImage ? (
+                    <img
+                      src={profileImage}
+                      alt="Profile"
+                      className="h-10 w-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <User />
+                  )}
+                </button>
+              </div>
+            )}
+            {!isLoggedIn && (
+              <Link to="/login" className="login-btn">
+                로그인
+              </Link>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <div className="myposts-content-area">
+        <div className="page-header-section">
+          <h2 className="page-title">User1의 최신 작성글입니다.</h2>
+          <div className="user-profile-icon">
+            <User size={30} />
+          </div>
+        </div>
+        <div className="category-tabs">
+          {categories.map((category) => (
+            <button
+              key={category}
+              className={`tab-btn ${
+                activeCategory === category ? "active" : ""
+              }`}
+              onClick={() => setActiveCategory(category)}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+        <div className="post-list-area">
+          {currentPosts.length > 0 ? (
+            currentPosts.map((post) => (
+              <div
+                key={post.id}
+                className="my-post-card"
+                onClick={() => navigate(`/posts/${post.id}`, { state: post })}
+                style={{ cursor: "pointer" }}
+              >
+                <h3 className="post-title">{post.title}</h3>
+                <p className="post-content">{post.content}</p>
+                <div className="post-stats">
+                  <span className="stat-item">
+                    <Heart size={18} />
+                    <span className="stat-count">{post.likes}</span>
+                  </span>
+                  <span className="stat-item">
+                    <MessageCircle size={18} />
+                    <span className="stat-count">{post.comments}</span>
+                  </span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="no-posts-message">작성한 게시글이 없습니다.</p>
+          )}
+        </div>
+
+        {totalPages > 1 && (
+          <div className="pagination flex justify-center mt-8 space-x-2">
+            {[...Array(totalPages)].map((_, index) => (
+              <button
+                key={index + 1}
+                onClick={() => setCurrentPage(index + 1)}
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
+                  currentPage === index + 1
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // 전체 라우터
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profileImage, setProfileImage] = useState(null); // ✅ 프로필 이미지 상태 추가
-
+  const [posts, setPosts] = useState([]);
+  useEffect(() => {
+    // API 호출을 App.js에서 수행
+    fetch("https://jsonplaceholder.typicode.com/posts")
+      .then((res) => res.json())
+      .then((data) => {
+        const categories = [
+          "동물/반려동물",
+          "여행",
+          "건강/헬스",
+          "연예인",
+          "전체",
+        ];
+        const mapped = data.map((p) => ({
+          id: p.id,
+          userName: `User ${p.userId}`,
+          content: p.title,
+          likes: Math.floor(Math.random() * 100),
+          comments: Math.floor(Math.random() * 20),
+          category: categories[Math.floor(Math.random() * categories.length)],
+        }));
+        setPosts(mapped);
+      })
+      .catch((err) => {
+        console.error("API 호출 에러:", err);
+      });
+  }, []);
   const handleLogin = () => {
     setIsLoggedIn(true);
     alert("성공적으로 로그인 되었습니다!");
@@ -1009,6 +1165,10 @@ export default function App() {
     setProfileImage(null); // 로그아웃 시 프로필 이미지 초기화
     alert("로그아웃 되었습니다!");
   };
+  const addPost = (newPost) => {
+    setPosts((prevPosts) => [newPost, ...prevPosts]); // ✅ 새 게시물 추가 함수
+  };
+
   return (
     <Router>
       <Routes>
@@ -1019,6 +1179,8 @@ export default function App() {
               isLoggedIn={isLoggedIn}
               onLogout={handleLogout}
               profileImage={profileImage}
+              posts={posts} // ✅ posts 상태 전달
+              setPosts={setPosts} // ✅ setPosts 함수 전달
             />
           }
         />
@@ -1038,7 +1200,12 @@ export default function App() {
         <Route
           path="/new-post"
           element={
-            <NewPostPage isLoggedIn={isLoggedIn} profileImage={profileImage} />
+            <NewPostPage
+              isLoggedIn={isLoggedIn}
+              profileImage={profileImage}
+              profileImage={profileImage}
+              onAddPost={addPost}
+            />
           }
         />
         <Route
@@ -1048,10 +1215,21 @@ export default function App() {
               isLoggedIn={isLoggedIn}
               onLogout={handleLogout}
               profileImage={profileImage}
+              posts={posts}
             />
           }
         />
         <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+        <Route
+          path="/myposts"
+          element={
+            <MyPostsPage
+              isLoggedIn={isLoggedIn}
+              profileImage={profileImage}
+              posts={posts}
+            />
+          }
+        />
       </Routes>
     </Router>
   );

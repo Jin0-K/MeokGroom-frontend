@@ -17,14 +17,19 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
-import "./styles.css";
+import "./styles/MainBoardPage.css";
+import "./styles/FormPage.css"
+import "./styles/MyPage.css"
+import "./styles/PostDetailPage.css"
+import "./styles/ProfilePopup.css"
+import "./styles/LoginPage.css"
 
 // ✅ 프로필 이미지 업로드 기능이 추가된 ProfilePopup
 const ProfilePopup = ({ onClose, onLogout, profileImage }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    alert("로그아웃 되었습니다!");
+    // Replace alert with a modal or other non-blocking UI
     onLogout();
     onClose();
     navigate("/");
@@ -36,38 +41,28 @@ const ProfilePopup = ({ onClose, onLogout, profileImage }) => {
   };
 
   return (
-    <div className="absolute right-0 top-12 z-50 w-64 rounded-xl bg-white p-4 shadow-xl ring-1 ring-gray-200">
-      <div className="flex items-center space-x-3 border-b pb-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-          {profileImage ? (
-            <img
-              src={profileImage}
-              alt="Profile"
-              className="h-full w-full rounded-full object-cover"
-            />
-          ) : (
-            <User size={26} />
-          )}
+    <div className="profile-popup">
+      <div className="user-info-section">
+        <div className="user-avatar-container">
+          <User size={30} />
         </div>
-        <div className="flex-1">
-          <p className="text-lg font-bold text-gray-800">USER_A</p>
-          <p className="text-sm text-gray-500">user1-test@gmail.com</p>
+        <div className="user-text-info">
+          <p className="user-name">USER_A</p>
+          <p className="user-email">user1-test@gmail.com</p>
         </div>
       </div>
-      <div className="mt-4 space-y-2">
+      <div className="profile-actions-section">
         <button
-          className="flex w-full items-center space-x-2 rounded-lg p-2 text-left text-gray-700 transition hover:bg-gray-100"
+          className="profile-action-btn"
           onClick={handleMyPage}
         >
-          <User size={20} />
-          <span>마이페이지</span>
+          마이 페이지
         </button>
         <button
-          className="flex w-full items-center space-x-2 rounded-lg p-2 text-left text-gray-700 transition hover:bg-gray-100"
+          className="profile-action-btn"
           onClick={handleLogout}
         >
-          <LogOut size={20} />
-          <span>로그아웃</span>
+          로그아웃
         </button>
       </div>
     </div>
@@ -731,6 +726,7 @@ function SignUpPage() {
   );
 }
 // New login page component
+// New login page component
 function LoginPage({ onLogin }) {
   const navigate = useNavigate();
   const handleLogin = () => {
@@ -740,65 +736,58 @@ function LoginPage({ onLogin }) {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 font-sans text-gray-800">
+    <div className="login-page-container">
       <header className="header">
         <div className="logo" onClick={() => navigate("/")}>
           ☁️
         </div>
       </header>
-      <div className="w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-lg">
-        <h2 className="mb-6 text-3xl font-bold">로그인</h2>
-        <div className="space-y-4">
-          <div className="text-left">
-            <label className="mb-2 block text-sm font-medium text-gray-700">
-              아이디
-            </label>
+      <div className="login-box">
+        <h2 className="login-header">로그인</h2>
+        <div className="form-content-group">
+          <div className="form-field-group">
+            <label className="input-label">아이디</label>
             <input
               type="text"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="form-input"
             />
           </div>
-          <div className="text-left">
-            <label className="mb-2 block text-sm font-medium text-gray-700">
-              비밀번호
-            </label>
+          <div className="form-field-group">
+            <label className="input-label">비밀번호</label>
             <input
               type="password"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="form-input"
             />
           </div>
           <button
-            className="w-full rounded-xl bg-blue-600 py-3 font-medium text-white shadow transition hover:bg-blue-700"
+            className="login-button"
             onClick={handleLogin}
           >
             로그인
           </button>
         </div>
-        <div className="mt-6 text-sm text-gray-500">
-          계정이 없으신가요?{" "}
-          <Link
-            to="/signup"
-            className="font-medium text-blue-600 hover:underline"
-          >
-            회원가입
-          </Link>
-          <div className="mt-6 text-sm text-gray-500">
-            아이디를 까먹으셨나요?
-            <Link
-              to="/findid"
-              className="font-medium text-blue-600 hover:underline"
-            >
-              아이디 찾기
+        <div className="link-group">
+          <p className="link-text">
+            계정이 없으신가요?{" "}
+            <Link to="/signup" className="link-btn">
+              회원가입
             </Link>
+          </p>
+          <div className="link-text-divider">
+            <p className="link-text">
+              아이디를 까먹으셨나요?
+              <Link to="/findid" className="link-btn">
+                아이디 찾기
+              </Link>
+            </p>
           </div>
-          <div className="mt-6 text-sm text-gray-500">
-            비밀번호를 까먹으셨나요?
-            <Link
-              to="/findpassword"
-              className="font-medium text-blue-600 hover:underline"
-            >
-              비밀번호 찾기
-            </Link>
+          <div className="link-text-divider">
+            <p className="link-text">
+              비밀번호를 까먹으셨나요?
+              <Link to="/findpassword" className="link-btn">
+                비밀번호 찾기
+              </Link>
+            </p>
           </div>
         </div>
       </div>

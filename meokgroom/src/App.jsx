@@ -6,6 +6,7 @@ import {
   Route,
   useNavigate,
   Link,
+  useLocation,
 } from "react-router-dom";
 import {
   LogOut,
@@ -23,7 +24,8 @@ import "./styles/PostDetailPage.css"
 import "./styles/ProfilePopup.css"
 import "./styles/LoginPage.css"
 
-const ProfilePopup = ({ onClose, onLogout }) => {
+// ✅ 프로필 이미지 업로드 기능이 추가된 ProfilePopup
+const ProfilePopup = ({ onClose, onLogout, profileImage }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -67,57 +69,64 @@ const ProfilePopup = ({ onClose, onLogout }) => {
   );
 };
 
-//메인보드페이지
-function MainBoardPage({ isLoggedIn, onLogout }) {
+// 메인보드페이지
+function MainBoardPage({ isLoggedIn, onLogout, profileImage }) {
   const [posts, setPosts] = useState([]);
   const [sortOrder, setSortOrder] = useState("latest");
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(1); // ✅ 현재 페이지 상태
-  const [postsPerPage] = useState(10); // ✅ 한 페이지당 게시물 수 (상수로 설정)
-  const sortedPosts = [...posts].sort((a, b) => {
-    if (sortOrder === "popular") {
-      return b.likes - a.likes; // 좋아요 수 기준 내림차순
-    }
-    // 기본값은 최신순 (id 기준 내림차순)
-    return b.id - a.id;
-  });
-  // ✅ 게시물 필터링 및 정렬 로직
+  const [currentPage, setCurrentPage] = useState(1);
+  const [postsPerPage] = useState(10);
+  const [newPostContent, setNewPostContent] = useState("");
   const filteredPosts = posts.filter(
     (post) =>
       post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
       post.userName.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   const sortedAndFilteredPosts = [...filteredPosts].sort((a, b) => {
     if (sortOrder === "popular") {
       return b.likes - a.likes;
     }
     return b.id - a.id;
   });
-  // ✅ 페이지네이션을 위한 게시물 인덱스 계산
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
   const currentPosts = sortedAndFilteredPosts.slice(
     indexOfFirstPost,
     indexOfLastPost
   );
-
-  // ✅ 총 페이지 수 계산
   const totalPages = Math.ceil(sortedAndFilteredPosts.length / postsPerPage);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handlePostSubmit = (e) => {
+    e.preventDefault();
+    if (newPostContent.trim() === "") {
+      alert("내용을 입력해주세요.");
+      return;
+    }
+
+    const newPost = {
+      id: uuidv4(), // ✅ 고유 ID 생성
+      userName: "USER_A", // ✅ 현재 로그인된 유저
+      content: newPostContent,
+      likes: 0,
+      comments: 0,
+    };
+
+    setPosts([newPost, ...posts]); // ✅ 새 게시물을 배열 맨 앞에 추가
+    setNewPostContent(""); // ✅ 입력창 초기화
+    setIsModalOpen(false); // ✅ 모달 닫기
+  };
   useEffect(() => {
-    // JSONPlaceholder API 호출
     fetch("https://jsonplaceholder.typicode.com/posts")
       .then((res) => res.json())
       .then((data) => {
-        // 상위 5개만 변환해서 보여주도록 예시
         const mapped = data.map((p) => ({
           id: p.id,
           userName: `User ${p.userId}`,
           content: p.title,
-          likes: Math.floor(Math.random() * 100), // 임시 좋아요 수
-          comments: Math.floor(Math.random() * 20), // 임시 댓글 수
+          likes: Math.floor(Math.random() * 100),
+          comments: Math.floor(Math.random() * 20),
         }));
         setPosts(mapped);
       })
@@ -168,6 +177,8 @@ function MainBoardPage({ isLoggedIn, onLogout }) {
                   type="text"
                   placeholder="검색"
                   className="search-input"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 <button className="search-button">
                   <svg
@@ -188,23 +199,30 @@ function MainBoardPage({ isLoggedIn, onLogout }) {
               </div>
               <div className="header-actions">
                 {isLoggedIn ? (
-                  // 로그인 상태일 때: 프로필 아이콘과 팝업
                   <div className="profile-container relative">
                     <button
                       className="profile-btn"
                       onClick={() => setShowProfilePopup(!showProfilePopup)}
                     >
-                      <User />
+                      {profileImage ? (
+                        <img
+                          src={profileImage}
+                          alt="Profile"
+                          className="h-10 w-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        <User />
+                      )}
                     </button>
                     {showProfilePopup && (
                       <ProfilePopup
                         onClose={() => setShowProfilePopup(false)}
                         onLogout={onLogout}
+                        profileImage={profileImage}
                       />
                     )}
                   </div>
                 ) : (
-                  // 로그아웃 상태일 때: 회원가입, 로그인 버튼
                   <>
                     <Link to="/signup" className="signup-btn">
                       회원가입
@@ -220,23 +238,32 @@ function MainBoardPage({ isLoggedIn, onLogout }) {
           <div className="sort-buttons">
             <button
               className={`sort-btn ${sortOrder === "latest" ? "active" : ""}`}
-              onClick={() => setSortOrder("latest")} // ✅ 최신순 버튼 클릭 시 상태 변경
+              onClick={() => setSortOrder("latest")}
             >
               최신순
             </button>
             <button
               className={`sort-btn ${sortOrder === "popular" ? "active" : ""}`}
-              onClick={() => setSortOrder("popular")} // ✅ 인기순 버튼 클릭 시 상태 변경
+              onClick={() => setSortOrder("popular")}
             >
               인기순
             </button>
+            {/* ✅ '새 게시물 작성' 버튼 추가 */}
+            {isLoggedIn && (
+              <button
+                className="post-create-btn"
+                onClick={() => navigate("/new-post")}
+              >
+                + 새 게시물 작성
+              </button>
+            )}
           </div>
           <div className="post-list">
             {currentPosts.map((post) => (
               <div
                 key={post.id}
                 className="post-card"
-                onClick={() => navigate(`/posts/${post.id}`)} // ✅ 클릭 시 상세 페이지 이동
+                onClick={() => navigate(`/posts/${post.id}`, { state: post })}
                 style={{ cursor: "pointer" }}
               >
                 <div className="post-header">
@@ -264,7 +291,7 @@ function MainBoardPage({ isLoggedIn, onLogout }) {
               {[...Array(totalPages)].map((_, index) => (
                 <button
                   key={index + 1}
-                  onClick={() => setCurrentPage(index + 1)} // ✅ 클릭 시 페이지 변경
+                  onClick={() => setCurrentPage(index + 1)}
                   className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
                     currentPage === index + 1
                       ? "bg-blue-600 text-white"
@@ -278,13 +305,62 @@ function MainBoardPage({ isLoggedIn, onLogout }) {
           )}
         </div>
       </div>
+      {/* ✅ 게시물 작성 모달 */}
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3 className="modal-title">새 게시물 작성</h3>
+            <form onSubmit={handlePostSubmit}>
+              <textarea
+                className="modal-textarea"
+                placeholder="내용을 입력하세요..."
+                value={newPostContent}
+                onChange={(e) => setNewPostContent(e.target.value)}
+              />
+              <div className="modal-actions">
+                <button type="submit" className="btn-primary">
+                  작성하기
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  취소
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-//개별포스
-function PostDetailPage({ isLoggedIn, onLogout }) {
+
+// 개별 포스트 페이지
+function PostDetailPage({ isLoggedIn, onLogout, profileImage }) {
+  const { state } = useLocation();
+  const handleLike = () => {
+    // The setPost function uses a callback to get the previous state (prevPost).
+    setPost((prevPost) => {
+      // It returns a new object by copying the old one and incrementing the likes.
+      // This is crucial for immutability, which React relies on to detect changes.
+      return { ...prevPost, likes: prevPost.likes + 1 };
+    });
+  };
+  const [comments, setComments] = useState([]); // ✅ 댓글 상태 추가
+  const [newComment, setNewComment] = useState(""); // ✅ 새 댓글 입력값
+  const handleAddComment = () => {
+    if (!newComment.trim()) return;
+    setComments((prev) => [
+      ...prev,
+      { id: uuidv4(), user: "User1", text: newComment },
+    ]);
+    setNewComment("");
+  };
   const { id } = useParams();
-  const [post, setPost] = useState(null);
+  const [post, setPost] = useState(state || null);
+
   const navigate = useNavigate();
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   useEffect(() => {
@@ -298,8 +374,8 @@ function PostDetailPage({ isLoggedIn, onLogout }) {
           content: data.body,
           likes: Math.floor(Math.random() * 100),
           comments: Math.floor(Math.random() * 20),
-          date: "2025-08-18", // 예시
-          image: `https://picsum.photos/600/300?random=${id}`, // 랜덤 이미지
+          date: "2025-08-18",
+          image: `https://picsum.photos/600/300?random=${id}`,
         });
       });
   }, [id]);
@@ -331,23 +407,30 @@ function PostDetailPage({ isLoggedIn, onLogout }) {
           </div>
           <div className="header-actions">
             {isLoggedIn ? (
-              // 로그인 상태일 때: 프로필 아이콘과 팝업
               <div className="profile-container relative">
                 <button
                   className="profile-btn"
                   onClick={() => setShowProfilePopup(!showProfilePopup)}
                 >
-                  <User />
+                  {profileImage ? (
+                    <img
+                      src={profileImage}
+                      alt="Profile"
+                      className="h-10 w-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <User />
+                  )}
                 </button>
                 {showProfilePopup && (
                   <ProfilePopup
                     onClose={() => setShowProfilePopup(false)}
                     onLogout={onLogout}
+                    profileImage={profileImage}
                   />
                 )}
               </div>
             ) : (
-              // 로그아웃 상태일 때: 회원가입, 로그인 버튼
               <>
                 <Link to="/signup" className="signup-btn">
                   회원가입
@@ -416,23 +499,69 @@ function PostDetailPage({ isLoggedIn, onLogout }) {
         <p className="post-content">{post.content}</p>
 
         {/* 좋아요 & 댓글 */}
+
         <div className="post-stats">
-          <span>❤️ {post.likes}</span>
-          <span>💬 {post.comments}</span>
+          <button onClick={handleLike}>
+            <span>
+              <Heart /> {post.likes}
+            </span>
+          </button>
+          <span>
+            <MessageCircle /> {post.comments}
+          </span>
+        </div>
+        {/* 댓글 작성란 */}
+        <div className="comment-section">
+          <h3>댓글</h3>
+          <div className="comment-input flex space-x-2 mt-2">
+            <input
+              type="text"
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="댓글을 입력하세요"
+              className="flex-1 border rounded px-2 py-1"
+            />
+            <button
+              onClick={handleAddComment}
+              className="px-4 py-1 bg-blue-500 text-white rounded"
+            >
+              등록
+            </button>
+          </div>
+
+          {/* 댓글 목록 */}
+          <ul className="mt-4 space-y-2">
+            {comments.map((c) => (
+              <li key={c.id} className="border-b pb-2">
+                <strong>{c.user}</strong>: {c.text}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
   );
 }
 
-// 마이페이지
-function MyPage() {
+// ✅ 프로필 이미지 업로드 기능이 추가된 마이페이지
+function MyPage({ profileImage, setProfileImage }) {
   const [showPopup, setShowPopup] = useState(false);
   const navigate = useNavigate();
 
   const handleLeave = () => {
     alert("탈퇴 처리 완료");
     setShowPopup(false);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -442,15 +571,46 @@ function MyPage() {
           ☁️
         </div>
         <div className="user-info">
-          <User size={26} /> User1
+          {profileImage ? (
+            <img
+              src={profileImage}
+              alt="Profile"
+              className="h-8 w-8 rounded-full object-cover"
+            />
+          ) : (
+            <User size={26} />
+          )}
+          User1
         </div>
       </header>
 
-      {/* ✅ 메인 컨텐츠 영역 수정 */}
       <main className="main-content">
         <div className="profile-section">
-          <div className="profile-icon">
-            <User size={100} />
+          <div className="profile-icon relative group">
+            <div className="w-[100px] h-[100px] rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <User size={100} />
+              )}
+            </div>
+            <label
+              htmlFor="profile-upload"
+              className="absolute inset-0 flex items-center justify-center rounded-full bg-black bg-opacity-50 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100 cursor-pointer"
+            >
+              <span className="text-center text-sm">업로드</span>
+              <input
+                id="profile-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="hidden"
+              />
+            </label>
           </div>
           <h2>Welcome, User1</h2>
         </div>
@@ -688,10 +848,9 @@ function FindPasswordPage() {
       <main className="main-box">
         <h2>비밀번호 찾기</h2>
         <div className="form-group">
-          <label>ID</label>
-          <input type="ID" />
-          <label>Email</label>
-          <input type="Email" />
+          <input type="text" placeholder="ID" />
+
+          <input type="email" placeholder="Email" />
         </div>
 
         <button className="menu-btn" onClick={handleComplete}>
@@ -701,9 +860,145 @@ function FindPasswordPage() {
     </div>
   );
 }
+// 사용자에게 로그인 여부와 프로필 이미지를 받습니다.
+function NewPostPage({ isLoggedIn, profileImage }) {
+  const navigate = useNavigate();
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+  const categories = ["동물/반려동물", "여행", "건강/헬스", "연예인"];
+
+  const handleComplete = () => {
+    if (!title || !content || !selectedCategory) {
+      alert("제목, 내용, 카테고리를 모두 입력해주세요.");
+      return;
+    }
+    // 게시물 작성 로직 (서버에 데이터 전송 등)
+    console.log("새 게시물 작성 완료:", {
+      title,
+      content,
+      category: selectedCategory,
+    });
+    alert("게시물 작성이 완료되었습니다.");
+    navigate("/"); // 작성 후 메인 페이지로 이동
+  };
+
+  return (
+    <div className="new-post-container">
+      <header className="main-header">
+        <div className="right-header-wrapper">
+          <div className="search-bar-container">
+            {/* 검색창은 이 페이지에서는 숨기거나 제거합니다 */}
+          </div>
+          <div className="header-actions">
+            {isLoggedIn ? (
+              <div className="profile-container relative">
+                <button className="profile-btn">
+                  {profileImage ? (
+                    <img
+                      src={profileImage}
+                      alt="Profile"
+                      className="h-10 w-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <User />
+                  )}
+                </button>
+              </div>
+            ) : (
+              <Link to="/login" className="login-btn">
+                로그인
+              </Link>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <div className="new-post-content-area">
+        <div className="new-post-sidebar">
+          <div className="logo" onClick={() => navigate("/")}>
+            ☁️
+          </div>
+          <div className="category-section">
+            <h3 className="category-title">카테고리</h3>
+            <ul className="category-list">
+              <li>
+                <button
+                  className={`category-btn ${
+                    !selectedCategory ? "active" : ""
+                  }`}
+                  onClick={() => setSelectedCategory("")}
+                >
+                  전체
+                </button>
+              </li>
+              {categories.map((category) => (
+                <li key={category}>
+                  <button
+                    className={`category-btn ${
+                      selectedCategory === category ? "active" : ""
+                    }`}
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {category}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <div className="post-form-area">
+          <div className="post-title-section">
+            <h2 className="post-title-label">제목</h2>
+            <input
+              type="text"
+              placeholder="제목을 입력하세요"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="post-title-input"
+            />
+          </div>
+          <div className="post-content-section">
+            <textarea
+              placeholder="내용을 입력하세요..."
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="post-content-textarea"
+            />
+          </div>
+          <div className="post-tags">
+            {categories.map((category) => (
+              <button
+                key={category}
+                className={`tag-button ${
+                  selectedCategory === category ? "active" : ""
+                }`}
+                onClick={() => setSelectedCategory(category)}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+          <div className="form-actions">
+            <button className="btn-secondary" onClick={() => navigate("/")}>
+              취소
+            </button>
+            <button className="btn-primary" onClick={handleComplete}>
+              완료
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // 전체 라우터
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 추가
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [profileImage, setProfileImage] = useState(null); // ✅ 프로필 이미지 상태 추가
+
   const handleLogin = () => {
     setIsLoggedIn(true);
     alert("성공적으로 로그인 되었습니다!");
@@ -711,6 +1006,7 @@ export default function App() {
 
   const handleLogout = () => {
     setIsLoggedIn(false);
+    setProfileImage(null); // 로그아웃 시 프로필 이미지 초기화
     alert("로그아웃 되었습니다!");
   };
   return (
@@ -719,15 +1015,42 @@ export default function App() {
         <Route
           path="/"
           element={
-            <MainBoardPage isLoggedIn={isLoggedIn} onLogout={handleLogout} />
+            <MainBoardPage
+              isLoggedIn={isLoggedIn}
+              onLogout={handleLogout}
+              profileImage={profileImage}
+            />
           }
         />
-        <Route path="/MyPage" element={<MyPage />} />
+        <Route
+          path="/MyPage"
+          element={
+            <MyPage
+              profileImage={profileImage}
+              setProfileImage={setProfileImage}
+            />
+          }
+        />
         <Route path="/change-password" element={<ChangePasswordPage />} />
         <Route path="/findid" element={<FindIdentificationPage />} />
         <Route path="/findpassword" element={<FindPasswordPage />} />
         <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/posts/:id" element={<PostDetailPage isLoggedIn={isLoggedIn} onLogout={handleLogout} />} />
+        <Route
+          path="/new-post"
+          element={
+            <NewPostPage isLoggedIn={isLoggedIn} profileImage={profileImage} />
+          }
+        />
+        <Route
+          path="/posts/:id"
+          element={
+            <PostDetailPage
+              isLoggedIn={isLoggedIn}
+              onLogout={handleLogout}
+              profileImage={profileImage}
+            />
+          }
+        />
         <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
       </Routes>
     </Router>

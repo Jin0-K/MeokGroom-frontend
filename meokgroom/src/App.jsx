@@ -25,11 +25,34 @@ import "./styles.css";
 const ProfilePopup = ({ onClose, onLogout, profileImage }) => {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    alert("로그아웃 되었습니다!");
-    onLogout();
-    onClose();
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`, // ✅ 저장된 토큰을 헤더에 추가
+        },
+      });
+
+      if (response.ok) {
+        // 백엔드에서 로그아웃 성공을 확인
+        alert("로그아웃 되었습니다!");
+      } else {
+        // 백엔드에서 오류가 발생했더라도 프론트엔드는 로그아웃 처리
+        console.error("백엔드 로그아웃 실패");
+        alert("로그아웃 중 문제가 발생했습니다.");
+      }
+    } catch (error) {
+      console.error("네트워크 오류:", error);
+      alert("로그아웃 중 문제가 발생했습니다.");
+    } finally {
+      // ✅ API 호출 성공/실패 여부와 관계없이 프론트엔드 상태 초기화
+      localStorage.removeItem("authToken");
+      onLogout();
+      onClose();
+      navigate("/");
+    }
   };
 
   const handleMyPage = () => {
@@ -52,8 +75,10 @@ const ProfilePopup = ({ onClose, onLogout, profileImage }) => {
           )}
         </div>
         <div className="flex-1">
-          <p className="text-lg font-bold text-gray-800">USER_A</p>
-          <p className="text-sm text-gray-500">user1-test@gmail.com</p>
+          <p className="text-lg font-bold text-gray-800">
+            {currentUser?.userName || "USER"}
+          </p>
+          <p className="text-sm text-gray-500">{currentUser?.email || ""}</p>
         </div>
       </div>
       <div className="mt-4 space-y-2">
@@ -336,130 +361,285 @@ function MainBoardPage({
     </div>
   );
 }
-
-// 개별 포스트 페이지
-function PostDetailPage({ isLoggedIn, onLogout, profileImage }) {
+// 개별 포스트 페이지 (댓글 추가/수정/삭제 포함)
+function PostDetailPage({
+  isLoggedIn,
+  onLogout,
+  profileImage,
+  posts = [],
+  setPosts = () => {},
+}) {
   const { state } = useLocation();
-  const handleLike = () => {
-    // The setPost function uses a callback to get the previous state (prevPost).
-    setPost((prevPost) => {
-      // It returns a new object by copying the old one and incrementing the likes.
-      // This is crucial for immutability, which React relies on to detect changes.
-      return { ...prevPost, likes: prevPost.likes + 1 };
-    });
-  };
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [liked, setLiked] = useState(false);
+  const [post, setPost] = useState(state || null);
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState("");
+
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState("");
 
-  const [comments, setComments] = useState([]); // ✅ 댓글 상태 추가
-  const [newComment, setNewComment] = useState(""); // ✅ 새 댓글 입력값
-  // 댓글 추가 기능
-  const handleAddComment = () => {
-    if (!newComment.trim()) return;
-    const newCommentObj = {
-      id: uuidv4(),
-      user: "USER_A", // 로그인된 사용자 이름
-      text: newComment,
-    };
+  const [showProfilePopup, setShowProfilePopup] = useState(false);
 
-    const updatedComments = [...comments, newCommentObj];
-    setComments(updatedComments);
-    setNewComment("");
-    // 게시물 수정 기능
-    const handleEditPost = () => {
-      if (isEditing) {
-        const updatedPosts = posts.map((p) =>
-          p.id === post.id ? { ...p, content: editedContent } : p
-        );
-        setPosts(updatedPosts);
-        setIsEditing(false);
-      } else {
-        setIsEditing(true);
-        setEditedContent(post.content);
+  // 🔹 댓글 수정 상태
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editedCommentText, setEditedCommentText] = useState("");
+
+  // ===== 데이터 로드 =====
+  useEffect(() => {
+    const fetchPostAndComments = async () => {
+      try {
+        const postRes = await fetch(`/posts/${id}`);
+        if (!postRes.ok) throw new Error("게시물 로드 실패");
+        const postData = await postRes.json();
+        setPost(postData);
+
+        const cmtRes = await fetch(`/posts/${id}/comments`);
+        if (!cmtRes.ok) throw new Error("댓글 로드 실패");
+        const cmtData = await cmtRes.json();
+        setComments(cmtData);
+      } catch (err) {
+        console.error(err);
       }
     };
+    fetchPostAndComments();
+  }, [id]);
 
-    // Update the main post's comment count and list
-    const updatedPosts = posts.map((p) =>
-      p.id === post.id
-        ? { ...p, comments: p.comments + 1, commentList: updatedComments }
-        : p
-    );
-    setPosts(updatedPosts);
-  };
-  // 게시물 삭제 기능
-  const handleDeletePost = () => {
-    if (window.confirm("게시물을 정말 삭제하시겠습니까?")) {
-      const updatedPosts = posts.filter((p) => p.id !== post.id);
-      setPosts(updatedPosts);
-      navigate("/");
+  // ===== 좋아요 =====
+  const handleLike = async () => {
+    try {
+      let response;
+      if (liked) {
+        // 좋아요 취소
+        response = await fetch(`/posts/${id}/like`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        });
+      } else {
+        // 좋아요 추가
+        response = await fetch(`/posts/${id}/like`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        });
+      }
+
+      if (!response.ok) {
+        alert("좋아요 처리 실패");
+        return;
+      }
+
+      const updatedPost = await response.json();
+      setPost(updatedPost);
+      setLiked(!liked);
+
+      // 상위 posts 배열도 갱신
+      setPosts((prev) =>
+        Array.isArray(prev)
+          ? prev.map((p) => (p.id === updatedPost.id ? updatedPost : p))
+          : prev
+      );
+    } catch (err) {
+      console.error("좋아요 토글 오류:", err);
     }
   };
-  // 게시물 수정 기능
-  const handleEditPost = () => {
-    if (isEditing) {
-      const updatedPosts = posts.map((p) =>
-        p.id === post.id ? { ...p, content: editedContent } : p
+
+  // ===== 댓글 추가 =====
+  const handleAddComment = async () => {
+    if (!newComment.trim()) return;
+
+    try {
+      const response = await fetch(`/posts/${id}/comments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        body: JSON.stringify({
+          text: newComment,
+          userName: "USER_A", // TODO: 실제 사용자 정보로 교체
+        }),
+      });
+
+      if (!response.ok) {
+        alert("댓글 작성에 실패했습니다.");
+        return;
+      }
+
+      const data = await response.json();
+      const addedComment = data.comment || data;
+      setComments((prev) => [...prev, addedComment]);
+      setNewComment("");
+
+      // 댓글 수 +1
+      setPost((prev) =>
+        prev ? { ...prev, comments: (prev.comments || 0) + 1 } : prev
       );
-      setPosts(updatedPosts);
-      setIsEditing(false);
+      setPosts((prev) =>
+        Array.isArray(prev)
+          ? prev.map((p) =>
+              p.id === Number(id) || p.id === post?.id
+                ? { ...p, comments: p.comments + 1 }
+                : p
+            )
+          : prev
+      );
+    } catch (err) {
+      console.error("댓글 작성 오류:", err);
+    }
+  };
+
+  // ===== 댓글 수정 시작/취소/저장 =====
+  const startEditComment = (commentId, currentText) => {
+    setEditingCommentId(commentId);
+    setEditedCommentText(currentText);
+  };
+
+  const cancelEditComment = () => {
+    setEditingCommentId(null);
+    setEditedCommentText("");
+  };
+
+  const saveEditComment = async () => {
+    if (!editingCommentId) return;
+    const text = editedCommentText.trim();
+    if (!text) return;
+
+    try {
+      const response = await fetch(
+        `/posts/${id}/comments/${editingCommentId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+          body: JSON.stringify({ text }),
+        }
+      );
+
+      if (!response.ok) {
+        alert("댓글 수정에 실패했습니다.");
+        return;
+      }
+
+      const data = await response.json();
+      const updated = data.comment || data;
+
+      setComments((prev) =>
+        prev.map((c) =>
+          c.id === editingCommentId ? { ...c, text: updated.text ?? text } : c
+        )
+      );
+      setEditingCommentId(null);
+      setEditedCommentText("");
+    } catch (err) {
+      console.error("댓글 수정 오류:", err);
+    }
+  };
+
+  // ===== 댓글 삭제 =====
+  const handleDeleteComment = async (commentId) => {
+    if (!window.confirm("댓글을 삭제하시겠습니까?")) return;
+
+    try {
+      const response = await fetch(`/posts/${id}/comments/${commentId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      });
+
+      if (!response.ok) {
+        alert("댓글 삭제에 실패했습니다.");
+        return;
+      }
+
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
+      // 댓글 수 -1
+      setPost((prev) =>
+        prev
+          ? { ...prev, comments: Math.max((prev.comments || 1) - 1, 0) }
+          : prev
+      );
+      setPosts((prev) =>
+        Array.isArray(prev)
+          ? prev.map((p) =>
+              p.id === Number(id) || p.id === post?.id
+                ? { ...p, comments: Math.max(p.comments - 1, 0) }
+                : p
+            )
+          : prev
+      );
+    } catch (err) {
+      console.error("댓글 삭제 오류:", err);
+    }
+  };
+
+  // ===== 게시물 수정/삭제 =====
+  const handleEditPost = async () => {
+    if (isEditing) {
+      try {
+        const response = await fetch(`/posts/${id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+          body: JSON.stringify({ content: editedContent }),
+        });
+        if (!response.ok) {
+          alert("게시물 수정에 실패했습니다.");
+          return;
+        }
+        const updatedPost = await response.json();
+        setPost(updatedPost);
+        setIsEditing(false);
+
+        setPosts((prev) =>
+          Array.isArray(prev)
+            ? prev.map((p) => (p.id === updatedPost.id ? updatedPost : p))
+            : prev
+        );
+      } catch (err) {
+        console.error("게시물 수정 오류:", err);
+      }
     } else {
       setIsEditing(true);
-      setEditedContent(post.content);
-    }
-  };
-  // 댓글 수정 기능
-  const handleEditComment = (commentId, text) => {
-    if (editingCommentId === commentId) {
-      // Save changes
-      const updatedComments = comments.map((c) =>
-        c.id === commentId ? { ...c, text: editedCommentText } : c
-      );
-      setComments(updatedComments);
-      setEditingCommentId(null);
-    } else {
-      // Enter edit mode
-      setEditingCommentId(commentId);
-      setEditedCommentText(text);
-    }
-  };
-  // 댓글 삭제 기능
-  const handleDeleteComment = (commentId) => {
-    if (window.confirm("댓글을 삭제하시겠습니까?")) {
-      const updatedComments = comments.filter((c) => c.id !== commentId);
-      setComments(updatedComments);
-
-      // Update the main post's comment count and list
-      const updatedPosts = posts.map((p) =>
-        p.id === post.id
-          ? { ...p, comments: p.comments - 1, commentList: updatedComments }
-          : p
-      );
-      setPosts(updatedPosts);
+      setEditedContent(post?.content || "");
     }
   };
 
-  const { id } = useParams();
-  const [post, setPost] = useState(state || null);
+  const handleDeletePost = async () => {
+    if (!window.confirm("게시물을 정말 삭제하시겠습니까?")) return;
 
-  const navigate = useNavigate();
-  const [showProfilePopup, setShowProfilePopup] = useState(false);
-  useEffect(() => {
-    fetch(`https://jsonplaceholder.typicode.com/posts/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setPost({
-          id: data.id,
-          userName: `User ${data.userId}`,
-          title: data.title,
-          content: data.body,
-          likes: Math.floor(Math.random() * 100),
-          comments: Math.floor(Math.random() * 20),
-          date: "2025-08-18",
-          image: `https://picsum.photos/600/300?random=${id}`,
-        });
+    try {
+      const response = await fetch(`/posts/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
       });
-  }, [id]);
+      if (!response.ok) {
+        alert("게시물 삭제에 실패했습니다.");
+        return;
+      }
+      alert("게시물이 삭제되었습니다.");
+      // 상위 목록에서 제거
+      setPosts((prev) =>
+        Array.isArray(prev)
+          ? prev.filter((p) => p.id !== (post?.id ?? Number(id)))
+          : prev
+      );
+      navigate("/");
+    } catch (err) {
+      console.error("게시물 삭제 오류:", err);
+    }
+  };
 
   if (!post) return <p>로딩 중...</p>;
 
@@ -470,6 +650,7 @@ function PostDetailPage({ isLoggedIn, onLogout, profileImage }) {
           <div className="search-bar-container">
             <input type="text" placeholder="검색" className="search-input" />
             <button className="search-button">
+              {/* 검색 아이콘 svg */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -486,12 +667,13 @@ function PostDetailPage({ isLoggedIn, onLogout, profileImage }) {
               </svg>
             </button>
           </div>
+
           <div className="header-actions">
             {isLoggedIn ? (
               <div className="profile-container relative">
                 <button
                   className="profile-btn"
-                  onClick={() => setShowProfilePopup(!showProfilePopup)}
+                  onClick={() => setShowProfilePopup((v) => !v)}
                 >
                   {profileImage ? (
                     <img
@@ -524,13 +706,13 @@ function PostDetailPage({ isLoggedIn, onLogout, profileImage }) {
           </div>
         </div>
       </header>
+
       <div className="sidebar">
         <div className="sidebar-header">
           <Link to="/" className="logo-link">
             ☁️
           </Link>
         </div>
-        <div className="top-category-section"></div>
         <div className="category-section">
           <h3 className="category-title">카테고리</h3>
           <ul className="category-list">
@@ -563,44 +745,48 @@ function PostDetailPage({ isLoggedIn, onLogout, profileImage }) {
           </div>
         </div>
 
-        {/* 게시물 이미지 */}
+        {/* 이미지 */}
         {post.image && (
           <div className="post-image">
             <img src={post.image} alt="post" />
           </div>
         )}
 
-        {/* 게시물 내용 */}
+        {/* 내용 */}
         <h2 className="post-title">{post.title}</h2>
-        <p className="post-content">{post.content}</p>
+        {isEditing ? (
+          <textarea
+            value={editedContent}
+            onChange={(e) => setEditedContent(e.target.value)}
+            className="w-full border rounded p-2"
+          />
+        ) : (
+          <p className="post-content">{post.content}</p>
+        )}
 
-        {/* 좋아요 & 댓글 */}
-
+        {/* 좋아요 / 댓글 수 */}
         <div className="post-stats">
           <button onClick={handleLike}>
             <span>
-              <Heart /> {post.likes}
+              <Heart fill={liked ? "red" : "none"} /> {post.likes}
             </span>
           </button>
           <span>
             <MessageCircle /> {post.comments}
           </span>
         </div>
+
+        {/* 게시물 액션 */}
         <div className="post-actions">
           <button onClick={handleEditPost} className="action-btn">
-            <img
-              src="https://img.icons8.com/material-outlined/24/000000/pencil--v1.png"
-              alt="Edit"
-            />
+            <Pencil />
           </button>
           <button onClick={handleDeletePost} className="action-btn">
-            <img
-              src="https://img.icons8.com/material-outlined/24/000000/trash--v1.png"
-              alt="Delete"
-            />
+            <Trash2 />
           </button>
         </div>
-        {/* 댓글 작성란 */}
+
+        {/* 댓글 입력 */}
         <div className="comment-section">
           <h3>댓글</h3>
           <div className="comment-input flex space-x-2 mt-2">
@@ -617,27 +803,54 @@ function PostDetailPage({ isLoggedIn, onLogout, profileImage }) {
             >
               등록
             </button>
-            <div className="post-actions">
-              <button onClick={handleEditComment} className="action-btn">
-                <img
-                  src="https://img.icons8.com/material-outlined/24/000000/pencil--v1.png"
-                  alt="Edit"
-                />
-              </button>
-              <button onClick={handleDeleteComment} className="action-btn">
-                <img
-                  src="https://img.icons8.com/material-outlined/24/000000/trash--v1.png"
-                  alt="Delete"
-                />
-              </button>
-            </div>
           </div>
 
           {/* 댓글 목록 */}
           <ul className="mt-4 space-y-2">
             {comments.map((c) => (
               <li key={c.id} className="border-b pb-2">
-                <strong>{c.user}</strong>: {c.text}
+                {editingCommentId === c.id ? (
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      value={editedCommentText}
+                      onChange={(e) => setEditedCommentText(e.target.value)}
+                      className="flex-1 border rounded px-2 py-1"
+                    />
+                    <button
+                      onClick={saveEditComment}
+                      className="px-3 py-1 bg-green-500 text-white rounded"
+                    >
+                      저장
+                    </button>
+                    <button
+                      onClick={cancelEditComment}
+                      className="px-3 py-1 bg-gray-300 rounded"
+                    >
+                      취소
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex justify-between items-center">
+                    <span>
+                      <strong>{c.userName}</strong>: {c.text}
+                    </span>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => startEditComment(c.id, c.text)}
+                        className="action-btn"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteComment(c.id)}
+                        className="action-btn"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
@@ -760,9 +973,55 @@ function MyPage({ profileImage, setProfileImage }) {
 function ChangePasswordPage() {
   const navigate = useNavigate();
 
-  const handleComplete = () => {
-    alert("비밀번호 변경이 완료되었습니다!");
-    navigate("/");
+  const handleChangePassword = async () => {
+    // 1. 새 비밀번호와 확인 비밀번호가 일치하는지 확인
+    if (newPassword !== confirmPassword) {
+      alert("새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    // 2. 비밀번호 유효성 검사 (예: 최소 8자 이상, 문자, 숫자, 특수문자 포함 등)
+    if (newPassword.length < 8) {
+      alert("비밀번호는 8자 이상이어야 합니다.");
+      return;
+    }
+
+    // 3. API 요청에 사용할 토큰을 URL에서 가져옵니다.
+    // 이 토큰은 '비밀번호 찾기' 과정을 통해 받은 것으로 가정합니다.
+    const queryParams = new URLSearchParams(location.search);
+    const resetToken = queryParams.get("token");
+
+    if (!resetToken) {
+      alert("비밀번호를 변경할 수 있는 권한이 없습니다.");
+      navigate("/findpassword");
+      return;
+    }
+
+    try {
+      const response = await fetch("/auth/change-password", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          // ✅ 인증 토큰을 헤더에 추가합니다.
+          Authorization: `Bearer ${resetToken}`,
+        },
+        body: JSON.stringify({
+          newPassword,
+        }),
+      });
+
+      if (response.ok) {
+        alert("비밀번호가 성공적으로 변경되었습니다.");
+        navigate("/login");
+      } else {
+        alert(
+          "비밀번호 변경에 실패했습니다. 유효하지 않은 요청이거나 토큰이 만료되었습니다."
+        );
+      }
+    } catch (error) {
+      console.error("비밀번호 변경 중 오류 발생:", error);
+      alert("비밀번호 변경 중 문제가 발생했습니다.");
+    }
   };
 
   return (
@@ -772,21 +1031,31 @@ function ChangePasswordPage() {
           ☁️
         </div>
         <div className="user-info">
-          <User size={26} /> USER1
+          <User size={26} /> {currentUser?.userName || "USER"}
         </div>
       </header>
 
       <main className="main-box">
         <h2>비밀번호 변경</h2>
         <div className="form-group">
-          <label>새로운 비밀번호</label>
-          <input type="password" />
+          <input
+            type="password"
+            placeholder="새 비밀번호"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            className="w-full rounded-md border border-gray-300 p-3 focus:border-blue-500 focus:outline-none"
+          />
         </div>
         <div className="form-group">
-          <label>비밀번호 확인</label>
-          <input type="password" />
+          <input
+            type="password"
+            placeholder="새 비밀번호 확인"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="w-full rounded-md border border-gray-300 p-3 focus:border-blue-500 focus:outline-none"
+          />
         </div>
-        <button className="menu-btn" onClick={handleComplete}>
+        <button className="menu-btn" onClick={handleChangePassword}>
           완료
         </button>
       </main>
@@ -796,10 +1065,31 @@ function ChangePasswordPage() {
 
 // 회원가입 페이지
 function SignUpPage() {
+  const [id, setId] = useState("");
+  const [password, setPassword] = useState("");
+  const [userName, setUserName] = useState("");
   const navigate = useNavigate();
-  const handleSignup = () => {
-    alert("회원가입이 완료되었습니다!");
-    navigate("/");
+  const handleSignup = async () => {
+    try {
+      const response = await fetch("/auth/signup", {
+        // ✅ API 호출
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, password, userName }),
+      });
+
+      if (response.ok) {
+        alert("회원가입이 완료되었습니다!");
+        navigate("/login");
+      } else {
+        alert("회원가입에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("회원가입 중 오류 발생:", error);
+      alert("회원가입 중 문제가 발생했습니다.");
+    }
   };
 
   return (
@@ -833,11 +1123,32 @@ function SignUpPage() {
 }
 // New login page component
 function LoginPage({ onLogin }) {
+  const [id, setId] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const handleLogin = () => {
-    // Call the function passed from the parent component
-    onLogin();
-    navigate("/");
+  const handleLogin = async () => {
+    try {
+      const response = await fetch("/auth/login", {
+        // ✅ API 호출
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("authToken", data.token); // ✅ 토큰 저장
+        onLogin();
+        navigate("/");
+      } else {
+        alert("로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");
+      }
+    } catch (error) {
+      console.error("로그인 중 오류 발생:", error);
+      alert("로그인 중 문제가 발생했습니다.");
+    }
   };
 
   return (
@@ -856,6 +1167,9 @@ function LoginPage({ onLogin }) {
             </label>
             <input
               type="text"
+              placeholder="아이디"
+              value={id}
+              onChange={(e) => setId(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
@@ -865,6 +1179,9 @@ function LoginPage({ onLogin }) {
             </label>
             <input
               type="password"
+              placeholder="비밀번호"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
@@ -910,12 +1227,30 @@ function LoginPage({ onLogin }) {
 // 아이디 찾는 페이지
 function FindIdentificationPage() {
   const navigate = useNavigate();
+  const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
+  const handleFindId = async () => {
+    try {
+      const response = await fetch("/auth/findid", {
+        // ✅ API 호출
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userName, email }),
+      });
 
-  const handleComplete = () => {
-    alert("아이디 정보를 해당 이메일에 전송했습니다!");
-    navigate("/");
+      if (response.ok) {
+        const data = await response.json();
+        alert(`당신의 아이디는: ${data.id} 입니다.`);
+      } else {
+        alert("아이디를 찾을 수 없습니다. 이름과 이메일을 확인해주세요.");
+      }
+    } catch (error) {
+      console.error("아이디 찾기 중 오류 발생:", error);
+      alert("아이디 찾기 중 문제가 발생했습니다.");
+    }
   };
-
   return (
     <div className="app">
       <header className="header">
@@ -929,10 +1264,14 @@ function FindIdentificationPage() {
         <h2>아이디 찾기</h2>
         <div className="form-group">
           <label>Email</label>
-          <input type="Email" />
+          <input
+            type="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
 
-        <button className="menu-btn" onClick={handleComplete}>
+        <button className="menu-btn" onClick={handleFindId}>
           완료
         </button>
       </main>
@@ -942,12 +1281,29 @@ function FindIdentificationPage() {
 // 비밀번호 찾는 페이지
 function FindPasswordPage() {
   const navigate = useNavigate();
+  const [id, setId] = useState("");
+  const [email, setEmail] = useState("");
+  const handleFindPassword = async () => {
+    try {
+      const response = await fetch("/auth/findpassword", {
+        // ✅ API 호출
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, email }),
+      });
 
-  const handleComplete = () => {
-    alert("초기화된 비밀번호를 해당 이메일에 전송했습니다!");
-    navigate("/");
+      if (response.ok) {
+        alert("비밀번호 변경 링크가 이메일로 전송되었습니다.");
+      } else {
+        alert("계정을 찾을 수 없습니다. 아이디와 이메일을 확인해주세요.");
+      }
+    } catch (error) {
+      console.error("비밀번호 찾기 중 오류 발생:", error);
+      alert("비밀번호 찾기 중 문제가 발생했습니다.");
+    }
   };
-
   return (
     <div className="app">
       <header className="header">
@@ -960,12 +1316,22 @@ function FindPasswordPage() {
       <main className="main-box">
         <h2>비밀번호 찾기</h2>
         <div className="form-group">
-          <input type="text" placeholder="ID" />
+          <input
+            type="text"
+            placeholder="ID"
+            value={id}
+            onChange={(e) => setId(e.target.value)}
+          />
 
-          <input type="email" placeholder="Email" />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
 
-        <button className="menu-btn" onClick={handleComplete}>
+        <button className="menu-btn" onClick={handleFindPassword}>
           완료
         </button>
       </main>
@@ -981,23 +1347,39 @@ function NewPostPage({ isLoggedIn, profileImage, onAddPost }) {
 
   const categories = ["동물/반려동물", "여행", "건강/헬스", "연예인"];
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     if (!title || !content || !selectedCategory) {
       alert("제목, 내용, 카테고리를 모두 입력해주세요.");
       return;
     }
     const newPost = {
-      id: uuidv4(),
-      userName: "USER_A",
-      content: content,
-      title: title,
+      title,
+      content,
       category: selectedCategory,
-      likes: 0,
-      comments: 0,
+      userName: "USER_A", // ✅ 현재 로그인된 사용자 정보로 변경 필요
     };
-    onAddPost(newPost);
-    alert("게시물 작성이 완료되었습니다.");
-    navigate("/"); // 작성 후 메인 페이지로 이동
+    try {
+      const response = await fetch("/posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`, // ✅ 인증 토큰 헤더에 추가
+        },
+        body: JSON.stringify(newPost),
+      });
+
+      if (response.ok) {
+        alert("게시물 작성이 완료되었습니다.");
+        const createdPost = await response.json(); // ✅ 서버에서 응답으로 받은 게시물 데이터
+        onAddPost(createdPost); // 상태 업데이트 함수 호출
+        navigate("/");
+      } else {
+        alert("게시물 작성에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("게시물 작성 중 오류 발생:", error);
+      alert("게시물 작성 중 문제가 발생했습니다.");
+    }
   };
 
   return (
@@ -1273,7 +1655,8 @@ export default function App() {
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    setProfileImage(null); // 로그아웃 시 프로필 이미지 초기화
+    localStorage.removeItem("authToken"); // ✅ localStorage에서 토큰 삭제
+    setProfileImage(null);
   };
   const addPost = (newPost) => {
     setPosts((prevPosts) => [newPost, ...prevPosts]); // ✅ 새 게시물 추가 함수
@@ -1312,7 +1695,6 @@ export default function App() {
           element={
             <NewPostPage
               isLoggedIn={isLoggedIn}
-              profileImage={profileImage}
               profileImage={profileImage}
               onAddPost={addPost}
             />

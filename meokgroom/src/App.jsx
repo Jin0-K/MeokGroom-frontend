@@ -1,3 +1,4 @@
+//import 모듈
 import React, { useState, useEffect } from "react";
 import {
   useParams,
@@ -22,36 +23,34 @@ import { v4 as uuidv4 } from "uuid";
 import "./styles.css";
 
 // ✅ 프로필 이미지 업로드 기능이 추가된 ProfilePopup
-const ProfilePopup = ({ onClose, onLogout, profileImage }) => {
+const ProfilePopup = ({ onClose, onLogout, profileImage, currentUser }) => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
+      const token = localStorage.getItem("authToken");
       const response = await fetch("/auth/logout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`, // ✅ 저장된 토큰을 헤더에 추가
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
-        // 백엔드에서 로그아웃 성공을 확인
-        alert("로그아웃 되었습니다!");
+        // 서버에서 성공적으로 로그아웃 처리된 경우
+        localStorage.removeItem("authToken");
+        setIsLoggedIn(false);
+        setCurrentUser(null);
+        setProfileImage(null);
+        alert("로그아웃 되었습니다.");
       } else {
-        // 백엔드에서 오류가 발생했더라도 프론트엔드는 로그아웃 처리
-        console.error("백엔드 로그아웃 실패");
-        alert("로그아웃 중 문제가 발생했습니다.");
+        // 서버에서 로그아웃 실패 시
+        alert("로그아웃에 실패했습니다. 다시 시도해 주세요.");
       }
     } catch (error) {
-      console.error("네트워크 오류:", error);
-      alert("로그아웃 중 문제가 발생했습니다.");
-    } finally {
-      // ✅ API 호출 성공/실패 여부와 관계없이 프론트엔드 상태 초기화
-      localStorage.removeItem("authToken");
-      onLogout();
-      onClose();
-      navigate("/");
+      console.error("로그아웃 중 오류 발생:", error);
+      alert("로그아웃 처리 중 문제가 발생했습니다.");
     }
   };
 
@@ -108,6 +107,7 @@ function MainBoardPage({
   profileImage,
   posts,
   setPosts,
+  currentUser,
 }) {
   const [searchText, setSearchText] = useState("");
   const [sortOrder, setSortOrder] = useState("latest");
@@ -149,11 +149,13 @@ function MainBoardPage({
     }
 
     const newPost = {
-      id: uuidv4(), // ✅ 고유 ID 생성
-      userName: "USER_A", // ✅ 현재 로그인된 유저
+      title: "", // 필요하다면 제목 추가
       content: newPostContent,
+      userName: currentUser.userName,
+      createdAt: new Date().toISOString(),
       likes: 0,
-      comments: 0,
+      comments: [],
+      profileImage: profileImage,
     };
 
     setPosts([newPost, ...posts]); // ✅ 새 게시물을 배열 맨 앞에 추가
@@ -244,6 +246,7 @@ function MainBoardPage({
                         onClose={() => setShowProfilePopup(false)}
                         onLogout={onLogout}
                         profileImage={profileImage}
+                        currentUser={currentUser}
                       />
                     )}
                   </div>
@@ -409,45 +412,34 @@ function PostDetailPage({
   // ===== 좋아요 =====
   const handleLike = async () => {
     try {
-      let response;
-      if (liked) {
-        // 좋아요 취소
-        response = await fetch(`/posts/${id}/like`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
+      const token = localStorage.getItem("authToken");
+      const method = "PATCH"; // ✅ 명세서에 맞춰 PATCH 메서드 사용
+      const response = await fetch(`/posts/${id}`, {
+        method: method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ isLiked: !isLiked }), // ✅ 본문에 좋아요 상태를 포함하여 전송
+      });
+
+      if (response.ok) {
+        // ... 성공적으로 좋아요/좋아요 취소 처리 후 UI 업데이트
+        setIsLiked(!isLiked);
+        setPost((prevPost) => {
+          const newLikes = isLiked
+            ? prevPost.likes.filter((name) => name !== currentUser.userName)
+            : [...prevPost.likes, currentUser.userName];
+          return { ...prevPost, likes: newLikes };
         });
       } else {
-        // 좋아요 추가
-        response = await fetch(`/posts/${id}/like`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-        });
+        alert("좋아요 처리에 실패했습니다.");
       }
-
-      if (!response.ok) {
-        alert("좋아요 처리 실패");
-        return;
-      }
-
-      const updatedPost = await response.json();
-      setPost(updatedPost);
-      setLiked(!liked);
-
-      // 상위 posts 배열도 갱신
-      setPosts((prev) =>
-        Array.isArray(prev)
-          ? prev.map((p) => (p.id === updatedPost.id ? updatedPost : p))
-          : prev
-      );
-    } catch (err) {
-      console.error("좋아요 토글 오류:", err);
+    } catch (error) {
+      console.error("좋아요 API 호출 중 오류 발생:", error);
+      alert("좋아요 처리 중 문제가 발생했습니다.");
     }
   };
-
   // ===== 댓글 추가 =====
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
@@ -461,7 +453,7 @@ function PostDetailPage({
         },
         body: JSON.stringify({
           text: newComment,
-          userName: "USER_A", // TODO: 실제 사용자 정보로 교체
+          userName: currentUser?.userName, // TODO: 실제 사용자 정보로 교체
         }),
       });
 
@@ -510,17 +502,14 @@ function PostDetailPage({
     if (!text) return;
 
     try {
-      const response = await fetch(
-        `/posts/${id}/comments/${editingCommentId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-          body: JSON.stringify({ text }),
-        }
-      );
+      const response = await fetch(`/comments/${editingCommentId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        body: JSON.stringify({ text }),
+      });
 
       if (!response.ok) {
         alert("댓글 수정에 실패했습니다.");
@@ -544,39 +533,29 @@ function PostDetailPage({
 
   // ===== 댓글 삭제 =====
   const handleDeleteComment = async (commentId) => {
-    if (!window.confirm("댓글을 삭제하시겠습니까?")) return;
-
+    if (!window.confirm("정말 댓글을 삭제하시겠습니까?")) {
+      return;
+    }
     try {
-      const response = await fetch(`/posts/${id}/comments/${commentId}`, {
+      const token = localStorage.getItem("authToken");
+      // ✅ 명세서에 맞는 올바른 엔드포인트 경로로 수정
+      const response = await fetch(`/comments/${commentId}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
-      if (!response.ok) {
+      if (response.ok) {
+        alert("댓글이 삭제되었습니다.");
+        // ✅ 삭제된 댓글을 제외하고 상태를 업데이트
+        setComments(comments.filter((comment) => comment.id !== commentId));
+      } else {
         alert("댓글 삭제에 실패했습니다.");
-        return;
       }
-
-      setComments((prev) => prev.filter((c) => c.id !== commentId));
-      // 댓글 수 -1
-      setPost((prev) =>
-        prev
-          ? { ...prev, comments: Math.max((prev.comments || 1) - 1, 0) }
-          : prev
-      );
-      setPosts((prev) =>
-        Array.isArray(prev)
-          ? prev.map((p) =>
-              p.id === Number(id) || p.id === post?.id
-                ? { ...p, comments: Math.max(p.comments - 1, 0) }
-                : p
-            )
-          : prev
-      );
-    } catch (err) {
-      console.error("댓글 삭제 오류:", err);
+    } catch (error) {
+      console.error("댓글 삭제 중 오류 발생:", error);
+      alert("댓글 삭제 중 문제가 발생했습니다.");
     }
   };
 
@@ -690,6 +669,7 @@ function PostDetailPage({
                     onClose={() => setShowProfilePopup(false)}
                     onLogout={onLogout}
                     profileImage={profileImage}
+                    currentUser={currentUser}
                   />
                 )}
               </div>
@@ -861,12 +841,82 @@ function PostDetailPage({
 }
 
 // ✅ 프로필 이미지 업로드 기능이 추가된 마이페이지
-function MyPage({ profileImage, setProfileImage }) {
+function MyPage({ profileImage, setProfileImage, currentUser, onLogout }) {
+  // ✅ 새로운 함수: 서버에 프로필 이미지 업데이트 요청
+  const updateProfileImageOnServer = async (base64Image) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      // base64 데이터를 Blob으로 변환
+      const byteCharacters = atob(base64Image.split(",")[1]);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: "image/png" }); // 이미지 타입에 맞게 수정
+
+      const formData = new FormData();
+      formData.append("profileImage", blob, "profile.png");
+
+      const response = await fetch("/users/me", {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        alert("프로필 이미지가 성공적으로 변경되었습니다.");
+        // 서버 응답에서 새로운 프로필 URL을 받아서 상태 업데이트
+        const updatedUser = await response.json();
+        if (updatedUser.profileImageUrl) {
+          setProfileImage(updatedUser.profileImageUrl);
+        }
+      } else {
+        alert("프로필 이미지 변경에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("프로필 이미지 변경 중 오류 발생:", error);
+      alert("프로필 이미지 변경 중 문제가 발생했습니다.");
+    }
+  };
   const [showPopup, setShowPopup] = useState(false);
   const navigate = useNavigate();
 
-  const handleLeave = () => {
-    alert("탈퇴 처리 완료");
+  const handleLeave = async (onLogout) => {
+    if (
+      !window.confirm(
+        "탈퇴 시 회원정보는 복구될 수 없습니다. 정말 탈퇴하겠습니까?"
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch("/users/me", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        alert("회원 탈퇴가 완료되었습니다.");
+        // App.js의 로그아웃 함수 호출
+        onLogout();
+        // 홈페이지로 이동
+        navigate("/");
+      } else {
+        alert("회원 탈퇴에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("회원 탈퇴 중 오류 발생:", error);
+      alert("회원 탈퇴 중 문제가 발생했습니다.");
+    }
+
     setShowPopup(false);
   };
 
@@ -875,7 +925,10 @@ function MyPage({ profileImage, setProfileImage }) {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
+        // 이미지를 미리보기로 설정
         setProfileImage(reader.result);
+        // 서버에 이미지 업데이트 요청
+        updateProfileImageOnServer(reader.result);
       };
       reader.readAsDataURL(file);
     }
@@ -897,7 +950,7 @@ function MyPage({ profileImage, setProfileImage }) {
           ) : (
             <User size={26} />
           )}
-          User1
+          {currentUser?.userName}
         </div>
       </header>
 
@@ -929,7 +982,7 @@ function MyPage({ profileImage, setProfileImage }) {
               />
             </label>
           </div>
-          <h2>Welcome, User1</h2>
+          <h2>Welcome, {currentUser?.userName}</h2>
         </div>
         <div className="menu-buttons">
           <button
@@ -971,7 +1024,10 @@ function MyPage({ profileImage, setProfileImage }) {
 
 // 비밀번호 변경 페이지
 function ChangePasswordPage() {
+  const location = useLocation();
   const navigate = useNavigate();
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleChangePassword = async () => {
     // 1. 새 비밀번호와 확인 비밀번호가 일치하는지 확인
@@ -998,7 +1054,7 @@ function ChangePasswordPage() {
     }
 
     try {
-      const response = await fetch("/auth/change-password", {
+      const response = await fetch("/users/me", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -1065,19 +1121,19 @@ function ChangePasswordPage() {
 
 // 회원가입 페이지
 function SignUpPage() {
+  const [email, setEmail] = useState("");
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const [userName, setUserName] = useState("");
   const navigate = useNavigate();
   const handleSignup = async () => {
     try {
-      const response = await fetch("/auth/signup", {
-        // ✅ API 호출
+      const response = await fetch("/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ id, password, userName }),
+        body: JSON.stringify({ id, password, userName, email }),
       });
 
       if (response.ok) {
@@ -1104,15 +1160,27 @@ function SignUpPage() {
         <h2>회원가입화면</h2>
         <div className="form-group">
           <label>ID</label>
-          <input type="ID" />
+          <input
+            type="text"
+            value={id}
+            onChange={(e) => setId(e.target.value)}
+          />
         </div>
         <div className="form-group">
           <label>비밀번호</label>
-          <input type="password" />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
         <div className="form-group">
           <label>이메일</label>
-          <input type="ID" />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
         <button className="menu-btn" onClick={handleSignup}>
           완료
@@ -1129,7 +1197,6 @@ function LoginPage({ onLogin }) {
   const handleLogin = async () => {
     try {
       const response = await fetch("/auth/login", {
-        // ✅ API 호출
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1139,8 +1206,8 @@ function LoginPage({ onLogin }) {
 
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem("authToken", data.token); // ✅ 토큰 저장
-        onLogin();
+        localStorage.setItem("authToken", data.token);
+        onLogin(data.user); // ✅ 로그인 성공 시 사용자 정보(data.user)를 전달
         navigate("/");
       } else {
         alert("로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");
@@ -1227,7 +1294,7 @@ function LoginPage({ onLogin }) {
 // 아이디 찾는 페이지
 function FindIdentificationPage() {
   const navigate = useNavigate();
-  const [userName, setUserName] = useState("");
+
   const [email, setEmail] = useState("");
   const handleFindId = async () => {
     try {
@@ -1263,7 +1330,7 @@ function FindIdentificationPage() {
       <main className="main-box">
         <h2>아이디 찾기</h2>
         <div className="form-group">
-          <label>Email</label>
+          <label>이메일</label>
           <input
             type="Email"
             value={email}
@@ -1339,7 +1406,7 @@ function FindPasswordPage() {
   );
 }
 // 사용자에게 로그인 여부와 프로필 이미지를 받습니다.
-function NewPostPage({ isLoggedIn, profileImage, onAddPost }) {
+function NewPostPage({ isLoggedIn, profileImage, onAddPost, currentUser }) {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -1356,7 +1423,7 @@ function NewPostPage({ isLoggedIn, profileImage, onAddPost }) {
       title,
       content,
       category: selectedCategory,
-      userName: "USER_A", // ✅ 현재 로그인된 사용자 정보로 변경 필요
+      userName: currentUser?.userName, // ✅ 현재 로그인된 사용자 정보로 변경 필요
     };
     try {
       const response = await fetch("/posts", {
@@ -1493,14 +1560,14 @@ function NewPostPage({ isLoggedIn, profileImage, onAddPost }) {
 }
 // 작성글조회페이지
 // MyPostsPage 컴포넌트는 App.js에서 'posts' 상태와 'isLoggedIn' 등을 prop으로 받습니다.
-function MyPostsPage({ isLoggedIn, profileImage, posts }) {
+function MyPostsPage({ isLoggedIn, profileImage, posts, currentUser }) {
   const navigate = useNavigate();
-  const currentUserName = "USER_A"; // 로그인한 사용자 이름 가정
+
   const [activeCategory, setActiveCategory] = useState("전체");
 
   const myPosts = posts.filter(
     (post) =>
-      post.userName === currentUserName &&
+      post.userName === currentUser?.userName &&
       (activeCategory === "전체" || post.category === activeCategory)
   );
 
@@ -1549,7 +1616,9 @@ function MyPostsPage({ isLoggedIn, profileImage, posts }) {
 
       <div className="myposts-content-area">
         <div className="page-header-section">
-          <h2 className="page-title">User1의 최신 작성글입니다.</h2>
+          <h2 className="page-title">
+            {currentUser?.userName}의 최신 작성글입니다.
+          </h2>
           <div className="user-profile-icon">
             <User size={30} />
           </div>
@@ -1619,44 +1688,88 @@ function MyPostsPage({ isLoggedIn, profileImage, posts }) {
 
 // 전체 라우터
 export default function App() {
+  const fetchCurrentUser = async () => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        const response = await fetch("/users/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          setCurrentUser(userData);
+          setIsLoggedIn(true);
+        } else {
+          // 토큰이 유효하지 않으면 로그아웃 처리
+          console.error("토큰이 유효하지 않습니다.");
+          handleLogout();
+        }
+      } catch (error) {
+        console.error("사용자 정보 가져오기 실패:", error);
+        handleLogout();
+      }
+    }
+  };
+
+  useEffect(() => {
+    // 컴포넌트 마운트 시 사용자 정보 확인
+    fetchCurrentUser();
+  }, []);
+
+  const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profileImage, setProfileImage] = useState(null); // ✅ 프로필 이미지 상태 추가
   const [posts, setPosts] = useState([]);
   useEffect(() => {
-    // API 호출을 App.js에서 수행
-    fetch("https://jsonplaceholder.typicode.com/posts")
-      .then((res) => res.json())
-      .then((data) => {
-        const categories = [
-          "동물/반려동물",
-          "여행",
-          "건강/헬스",
-          "연예인",
-          "전체",
-        ];
-        const mapped = data.map((p) => ({
-          id: p.id,
-          userName: `User ${p.userId}`,
-          content: p.title,
-          likes: Math.floor(Math.random() * 100),
-          comments: Math.floor(Math.random() * 20),
-          category: categories[Math.floor(Math.random() * categories.length)],
-        }));
-        setPosts(mapped);
-      })
-      .catch((err) => {
-        console.error("API 호출 에러:", err);
-      });
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch("/posts");
+        if (response.ok) {
+          const data = await response.json();
+          setPosts(data);
+        } else {
+          console.error("게시글을 가져오는 데 실패했습니다.");
+        }
+      } catch (error) {
+        console.error("게시글 API 호출 중 오류 발생:", error);
+      }
+    };
+    fetchPosts();
   }, []);
-  const handleLogin = () => {
+  const handleLogin = (userData) => {
     setIsLoggedIn(true);
+    setCurrentUser(userData);
     alert("성공적으로 로그인 되었습니다!");
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    localStorage.removeItem("authToken"); // ✅ localStorage에서 토큰 삭제
-    setProfileImage(null);
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch("/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        // 서버에서 성공적으로 로그아웃 처리된 경우
+        localStorage.removeItem("authToken");
+        setIsLoggedIn(false);
+        setCurrentUser(null);
+        setProfileImage(null);
+        alert("로그아웃 되었습니다.");
+      } else {
+        // 서버에서 로그아웃 실패 시
+        alert("로그아웃에 실패했습니다. 다시 시도해 주세요.");
+      }
+    } catch (error) {
+      console.error("로그아웃 중 오류 발생:", error);
+      alert("로그아웃 처리 중 문제가 발생했습니다.");
+    }
   };
   const addPost = (newPost) => {
     setPosts((prevPosts) => [newPost, ...prevPosts]); // ✅ 새 게시물 추가 함수
@@ -1674,6 +1787,7 @@ export default function App() {
               profileImage={profileImage}
               posts={posts} // ✅ posts 상태 전달
               setPosts={setPosts} // ✅ setPosts 함수 전달
+              currentUser={currentUser}
             />
           }
         />
@@ -1683,10 +1797,15 @@ export default function App() {
             <MyPage
               profileImage={profileImage}
               setProfileImage={setProfileImage}
+              currentUser={currentUser}
+              onLogout={handleLogout}
             />
           }
         />
-        <Route path="/change-password" element={<ChangePasswordPage />} />
+        <Route
+          path="/change-password"
+          element={<ChangePasswordPage currentUser={currentUser} />}
+        />
         <Route path="/findid" element={<FindIdentificationPage />} />
         <Route path="/findpassword" element={<FindPasswordPage />} />
         <Route path="/signup" element={<SignUpPage />} />
@@ -1697,6 +1816,7 @@ export default function App() {
               isLoggedIn={isLoggedIn}
               profileImage={profileImage}
               onAddPost={addPost}
+              currentUser={currentUser}
             />
           }
         />
@@ -1708,6 +1828,7 @@ export default function App() {
               onLogout={handleLogout}
               profileImage={profileImage}
               posts={posts}
+              currentUser={currentUser}
             />
           }
         />
@@ -1719,6 +1840,7 @@ export default function App() {
               isLoggedIn={isLoggedIn}
               profileImage={profileImage}
               posts={posts}
+              currentUser={currentUser}
             />
           }
         />

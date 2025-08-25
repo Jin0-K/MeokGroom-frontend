@@ -21,6 +21,8 @@ import "./styles/PostDetailPage.css";
 import "./styles/ProfilePopup.css";
 import "./styles/LoginPage.css";
 import "./styles/SignUpPage.css";
+import "./styles/FindIdentificationPage.css";
+import "./styles/FindPasswordPage.css";
 
 export default function App() {
   const fetchCurrentUser = async () => {

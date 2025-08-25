@@ -29,7 +29,7 @@ function FindIdentificationPage() {
     }
   };
   return (
-    <div className="app">
+    <div className="findid-page">
       <header className="header">
         <div className="logo" onClick={() => navigate("/")}>
           <img src="/logo.png" alt="Logo" className="logo-image" />
@@ -37,18 +37,19 @@ function FindIdentificationPage() {
         <div className="user-info"></div>
       </header>
 
-      <main className="main-box">
-        <h2>아이디 찾기</h2>
-        <div className="form-group">
-          <label>이메일</label>
+      <main className="findid-container">
+        <h2 className="findid-title">아이디 찾기</h2>
+        <div className="findid-form-group">
+          <label className="findid-form-label">Email</label>
           <input
             type="Email"
             value={email}
+            placeholder="이메일"
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
 
-        <button className="menu-btn" onClick={handleFindId}>
+        <button className="findid-complete-btn" onClick={handleFindId}>
           완료
         </button>
       </main>

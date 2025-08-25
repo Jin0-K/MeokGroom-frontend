@@ -99,7 +99,7 @@
     font-size: 1.125rem;
     font-weight: 700;
     border: none;
-    border-radius: 1.25rem;
+    border-radius: 999px;
     cursor: pointer;
     transition: background-color 0.2s, transform 0.2s;
 }

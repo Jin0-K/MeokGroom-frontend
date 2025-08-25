@@ -44,7 +44,7 @@
 .category-title {
   font-size: 18px;
   font-weight: 600;
-  color: #556375; /* Gray text for the title */
+  color: #485362; /* Gray text for the title */
   margin-left: 16px;
   margin-bottom: 24px;
 }
@@ -100,14 +100,6 @@
   background-color: #d6dee7;
 }
 
-/* .right-header-wrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  background-color: transparent;
-} */
-
 .search-bar-container {
   display: flex;
   align-items: center;
@@ -126,6 +118,10 @@
   font-size: 16px;
   background-color: transparent;
   color: #1e293b;
+}
+
+.search-input::placeholder {
+  color: #707274d8;
 }
 
 .search-button {

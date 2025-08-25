@@ -49,7 +49,7 @@
   font-size: 32px;
   font-weight: 700;
   color: #1e293b;
-  margin-bottom: 24px;
+  margin-bottom: 36px;
 }
 
 
@@ -72,9 +72,9 @@
 }
 
 .input-label {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
-  color: #334155;
+  color: #fafafa;
   min-width: 40px; /* Fixed width for label to align inputs */
 }
 
@@ -97,6 +97,11 @@
   background-color: #c0d1e5;
 }
 
+.form-input::placeholder {
+  color: #eff2f5d8;
+  font-size: 14px;
+}
+
 /* Links and helper text */
 .login-links {
   display: flex;
@@ -114,17 +119,12 @@
 
 .login-link:hover {
   color: #1e293b;
-  text-decoration: underline;
 }
 
-/* Login Button outside of container */
-/* .login-btn-container {
-  align-items: center;
-  margin-top: 36px;
-}
-
-.login-btn {
+/* Login Button */
+.login-login-btn {
   width: 120px;
+  margin-top: 12px;
   padding: 14px;
   border: none;
   border-radius: 9999px;
@@ -137,7 +137,7 @@
   transition: background-color 0.2s, transform 0.2s;
 }
 
-.login-btn:hover {
+.login-login-btn:hover {
   background-color: #434d70;
   transform: translateY(-2px);
-} */
+}

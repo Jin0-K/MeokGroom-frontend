@@ -73,7 +73,7 @@ function LoginPage({ onLogin }) {
             비밀번호 찾기
           </Link>
         </div>
-        <button className="login-btn" onClick={handleLogin}>
+        <button className="login-login-btn" onClick={handleLogin}>
           로그인
         </button>
       </div>

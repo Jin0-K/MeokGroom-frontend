@@ -39,7 +39,7 @@ function LoginPage({ onLogin }) {
     localStorage.setItem("authToken", "mock-token-for-css");
     onLogin(mockUserData);
     alert("로그인 되었습니다.");
-   navigate("/mypage");  // css 파일 만들고 이 부분은 지우세요, 지금은 mypage로 해놓았지만 , myposts일땐 myposts, 
+   navigate("/");  // css 파일 만들고 백엔드연동비활성화부분부터 이 부분까지는 지우세요 
   };
 
   return (

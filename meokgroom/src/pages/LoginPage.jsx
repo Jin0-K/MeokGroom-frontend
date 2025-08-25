@@ -8,27 +8,30 @@ function LoginPage({ onLogin }) {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const handleLogin = async () => {
-    try {
-      const response = await fetch("/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id, password }),
-      });
+    //css 파일 만들고 난후 여기서부터 끝 표시해논데까지 주석표시해제하시오
+   // try {
+   //   const response = await fetch("/auth/login", {
+   //     method: "POST",
+   //     headers: {
+   //       "Content-Type": "application/json",
+   //     },
+   //     body: JSON.stringify({ id, password }),
+   //   });
 
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem("authToken", data.token);
-        onLogin(data.user);
-        navigate("/");
-      } else {
-        alert("로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");
-      }
-    } catch (error) {
-      console.error("로그인 중 오류 발생:", error);
-      alert("로그인 중 문제가 발생했습니다.");
-    }
+   //   if (response.ok) {
+   //     const data = await response.json();
+   //     localStorage.setItem("authToken", data.token);
+   //     onLogin(data.user);
+   //     navigate("/");
+   //   } else {
+   //     alert("로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");
+   //   }
+   // } catch (error) {
+   //   console.error("로그인 중 오류 발생:", error);
+   //   alert("로그인 중 문제가 발생했습니다.");
+   // }
+   //이 곳이 파일 만들고 해제해야하는 부분의 끝
+   navigate("/mypage");  // css 파일 만들고 이 부분은 지우세요 
   };
 
   return (

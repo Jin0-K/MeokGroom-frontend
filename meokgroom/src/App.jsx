@@ -20,7 +20,12 @@ import {
   Trash2,
 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
-import "./styles/MainBoardPage.css"
+import "./styles/MainBoardPage.css";
+import "./styles/FormPage.css";
+import "./styles/MyPage.css";
+import "./styles/PostDetailPage.css";
+import "./styles/ProfilePopup.css";
+import "./styles/LoginPage.css";
 
 // ✅ 프로필 이미지 업로드 기능이 추가된 ProfilePopup
 const ProfilePopup = ({

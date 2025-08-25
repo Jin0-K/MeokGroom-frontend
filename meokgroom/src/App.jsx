@@ -179,6 +179,7 @@ export default function App() {
               isLoggedIn={isLoggedIn}
               profileImage={profileImage}
               posts={posts}
+              setPosts={setPosts} // 이 줄을 임시로 추가합니다.css파일 수정 이후 다시 삭제합니다.
               currentUser={currentUser}
             />
           }

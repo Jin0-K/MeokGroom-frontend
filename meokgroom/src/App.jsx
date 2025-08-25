@@ -185,7 +185,11 @@ function MainBoardPage({
         <div className="sidebar">
           <div className="sidebar-header">
             <Link to="/" className="logo-link">
-              ☁️
+              <img
+                src="/logo.png"
+                alt="Logo"
+                className="logo-image"
+              />
             </Link>
           </div>
           <div className="category-section">
@@ -211,26 +215,37 @@ function MainBoardPage({
         <div className="main-content-area">
           {/* Header with Search and Profile */}
           <header className="main-header">
-            <div className="right-header-wrapper">
-              <div className="search-bar-container">
-                <input
-                  type="text"
-                  placeholder="검색"
-                  className="search-input"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <button className="search-button">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+            <div className="search-bar-container">
+              <input
+                type="text"
+                placeholder="검색"
+                className="search-input"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <button className="search-button">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+              </button>
+            </div>
+            <div className="header-actions">
+              {isLoggedIn ? (
+                <div className="profile-container relative">
+                  <button
+                    className="profile-btn"
+                    onClick={() => setShowProfilePopup(!showProfilePopup)}
                   >
                     <circle cx="11" cy="11" r="8" />
                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -261,19 +276,28 @@ function MainBoardPage({
                         profileImage={profileImage}
                         currentUser={currentUser}
                       />
+                    ) : (
+                      <User />
                     )}
-                  </div>
-                ) : (
-                  <>
-                    <Link to="/signup" className="signup-btn">
-                      회원가입
-                    </Link>
-                    <Link to="/login" className="login-btn">
-                      로그인
-                    </Link>
-                  </>
-                )}
-              </div>
+                  </button>
+                  {showProfilePopup && (
+                    <ProfilePopup
+                      onClose={() => setShowProfilePopup(false)}
+                      onLogout={onLogout}
+                      profileImage={profileImage}
+                    />
+                  )}
+                </div>
+              ) : (
+                <>
+                  <Link to="/signup" className="signup-btn">
+                    회원가입
+                  </Link>
+                  <Link to="/login" className="login-btn">
+                    로그인
+                  </Link>
+                </>
+              )}
             </div>
           </header>
           <div className="sort-buttons">
@@ -289,7 +313,7 @@ function MainBoardPage({
             >
               인기순
             </button>
-            {/* ✅ '새 게시물 작성' 버튼 추가 */}
+            {/* '새 게시물 작성' 버튼 추가 */}
             {isLoggedIn && (
               <button
                 className="post-create-btn"
@@ -328,16 +352,12 @@ function MainBoardPage({
             )}
           </div>
           {totalPages > 1 && (
-            <div className="pagination flex justify-center mt-8 space-x-2">
+            <div className="pagination">
               {[...Array(totalPages)].map((_, index) => (
                 <button
                   key={index + 1}
                   onClick={() => setCurrentPage(index + 1)}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
-                    currentPage === index + 1
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  }`}
+                  className={`page-btn ${currentPage === index + 1 ? "active" : ""}`}
                 >
                   {index + 1}
                 </button>

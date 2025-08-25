@@ -724,7 +724,11 @@ function PostDetailPage({
       <div className="sidebar">
         <div className="sidebar-header">
           <Link to="/" className="logo-link">
-            ☁️
+            <img
+                src="/logo.png"
+                alt="Logo"
+                className="logo-image"
+            />
           </Link>
         </div>
         <div className="category-section">

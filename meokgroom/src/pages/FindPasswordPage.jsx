@@ -28,7 +28,7 @@ function FindPasswordPage() {
     }
   };
   return (
-    <div className="app">
+    <div className="findpwd-page">
       <header className="header">
         <div className="logo" onClick={() => navigate("/")}>
           <img src="/logo.png" alt="Logo" className="logo-image" />
@@ -36,25 +36,28 @@ function FindPasswordPage() {
         <div className="user-info"></div>
       </header>
 
-      <main className="main-box">
-        <h2>비밀번호 찾기</h2>
-        <div className="form-group">
+      <main className="findpwd-container">
+        <h2 className="findpwd-title">비밀번호 찾기</h2>
+        <div className="findpwd-form-group">
+          <label className="findpwd-form-label">ID</label>
           <input
             type="text"
-            placeholder="ID"
+            placeholder="아이디"
             value={id}
             onChange={(e) => setId(e.target.value)}
           />
-
+        </div>
+        <div className="findpwd-form-group">
+          <label className="findpwd-form-label">Email</label>
           <input
             type="email"
-            placeholder="Email"
+            placeholder="이메일"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
 
-        <button className="menu-btn" onClick={handleFindPassword}>
+        <button className="findpwd-complete-btn" onClick={handleFindPassword}>
           완료
         </button>
       </main>

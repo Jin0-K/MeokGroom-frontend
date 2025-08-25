@@ -32,43 +32,46 @@ function SignUpPage() {
   };
 
   return (
-    <div className="app">
+    <div className="signup-page">
       <header className="header">
         <div className="logo" onClick={() => navigate("/")}>
           <img src="/logo.png" alt="Logo" className="logo-image" />
         </div>
       </header>
 
-      <main className="main-box">
-        <h2>회원가입화면</h2>
-        <div className="form-group">
-          <label>ID</label>
+      <div className="signup-container">
+        <h2 className="signup-title">회원가입</h2>
+        <div className="signup-form-group">
+          <label className="signup-input-label">ID</label>
           <input
             type="text"
             value={id}
+            placeholder="아이디"
             onChange={(e) => setId(e.target.value)}
           />
         </div>
-        <div className="form-group">
-          <label>비밀번호</label>
+        <div className="signup-form-group">
+          <label className="signup-input-label">PWD</label>
           <input
             type="password"
             value={password}
+            placeholder="비밀번호"
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <div className="form-group">
-          <label>이메일</label>
+        <div className="signup-form-group">
+          <label className="signup-input-label">Email</label>
           <input
             type="email"
             value={email}
+            placeholder="이메일"
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
-        <button className="menu-btn" onClick={handleSignup}>
+        <button className="signup-complete-btn" onClick={handleSignup}>
           완료
         </button>
-      </main>
+      </div>
     </div>
   );
 }

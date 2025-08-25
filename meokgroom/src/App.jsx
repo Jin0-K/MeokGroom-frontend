@@ -23,7 +23,7 @@ import { v4 as uuidv4 } from "uuid";
 import "./styles.css";
 
 // ✅ 프로필 이미지 업로드 기능이 추가된 ProfilePopup
-const ProfilePopup = ({ onClose, onLogout, profileImage, currentUser }) => {
+const ProfilePopup = ({ onClose, onLogout, profileImage, currentUser, setIsLoggedIn, setCurrentUser, setProfileImage }) => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {

@@ -1,6 +1,6 @@
 :root {
   --color-default-bg: #d6dee7;
-  --color-darker-bg: #c8cfd6;
+  --color-darker-bg: #c6cfd8;
   --color-dark-navy: #3e4a5b;
   --color-darker-navy: #353f4d;
   --color-white: #fafafa;
@@ -17,14 +17,14 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: var(--color-white);
+  background-color: var(--color-default-bg);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   padding: 24px;
 }
 
 /* Login Form Container */
 .login-container {
-  background-color: var(--color-default-bg);
+  background-color: var(--color-white);
   padding: 80px 120px;
   border-radius: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -45,7 +45,7 @@
   padding: 32px 24px;
   position: absolute;
   top: 0;
-  left: 0;
+  border-bottom: var(--color-default-bg);
   background-color: var(--color-default-bg);
 }
 
@@ -78,7 +78,7 @@
   width: 90%; /* Fixed width relative to parent container */
   display: flex;
   align-items: center;
-  background-color: #a4b4ca;
+  background-color: var(--color-darker-bg);
   border-radius: 9999px;
   padding: 2px 16px;
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
@@ -100,14 +100,14 @@
   border-radius: 9999px;
   font-size: 16px;
   color: #1e293b;
-  background-color: #a4b4ca;
+  background-color: var(--color-darker-bg);
   transition: background-color 0.2s;
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); /* Inner shadow for depth */
 }
 
 .form-input:focus {
   outline: none;
-  background-color: #c0d1e5;
+  background-color: var(--color-default-bg);
 }
 
 .form-input::placeholder {

@@ -21,7 +21,7 @@ import "./styles/BaseDefault.css"
 import "./styles/MainBoardPage.css";
 // import "./styles/FormPage.css"
 // import "./styles/MyPage.css"
-// import "./styles/PostDetailPage.css"
+import "./styles/PostDetailPage.css"
 // import "./styles/ProfilePopup.css"
 // import "./styles/LoginPage.css"
 
@@ -445,7 +445,11 @@ function PostDetailPage({ isLoggedIn, onLogout, profileImage }) {
       <div className="sidebar">
         <div className="sidebar-header">
           <Link to="/" className="logo-link">
-            ☁️
+            <img
+                src="/logo.png"
+                alt="Logo"
+                className="logo-image"
+            />
           </Link>
         </div>
         {/* <div className="top-category-section">

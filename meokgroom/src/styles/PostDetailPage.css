@@ -7,6 +7,10 @@
   color: #1f2937;
 }
 
+.main-header {
+  margin-left: 240px;
+}
+
 .right-header-wrapper {
   display: flex;
   align-items: center;

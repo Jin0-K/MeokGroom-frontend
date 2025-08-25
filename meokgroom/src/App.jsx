@@ -20,6 +20,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
+import "./styles/BaseDefault.css"
 import "./styles/MainBoardPage.css";
 import "./styles/FormPage.css";
 import "./styles/MyPage.css";
@@ -215,91 +216,69 @@ function MainBoardPage({
         <div className="main-content-area">
           {/* Header with Search and Profile */}
           <header className="main-header">
-            <div className="search-bar-container">
-              <input
-                type="text"
-                placeholder="검색"
-                className="search-input"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <button className="search-button">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-              </button>
-            </div>
-            <div className="header-actions">
-              {isLoggedIn ? (
-                <div className="profile-container relative">
-                  <button
-                    className="profile-btn"
-                    onClick={() => setShowProfilePopup(!showProfilePopup)}
-                  >
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
-                </button>
-              </div>
-              <div className="header-actions">
-                {isLoggedIn ? (
-                  <div className="profile-container relative">
-                    <button
-                      className="profile-btn"
-                      onClick={() => setShowProfilePopup(!showProfilePopup)}
-                    >
-                      {profileImage ? (
-                        <img
-                          src={profileImage}
-                          alt="Profile"
-                          className="h-10 w-10 rounded-full object-cover"
-                        />
-                      ) : (
-                        <User />
-                      )}
-                    </button>
-                    {showProfilePopup && (
-                      <ProfilePopup
-                        onClose={() => setShowProfilePopup(false)}
-                        onLogout={onLogout}
-                        profileImage={profileImage}
-                        currentUser={currentUser}
-                      />
-                    ) : (
-                      <User />
-                    )}
-                  </button>
-                  {showProfilePopup && (
-                    <ProfilePopup
-                      onClose={() => setShowProfilePopup(false)}
-                      onLogout={onLogout}
-                      profileImage={profileImage}
-                    />
-                  )}
-                </div>
-              ) : (
-                <>
-                  <Link to="/signup" className="signup-btn">
-                    회원가입
-                  </Link>
-                  <Link to="/login" className="login-btn">
-                    로그인
-                  </Link>
-                </>
-              )}
-            </div>
-          </header>
+  <div className="search-bar-container">
+    <input
+      type="text"
+      placeholder="검색"
+      className="search-input"
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+    />
+    <button className="search-button">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+    </button>
+  </div>
+  <div className="header-actions">
+    {isLoggedIn ? (
+      <div className="profile-container relative">
+        <button
+          className="profile-btn"
+          onClick={() => setShowProfilePopup(!showProfilePopup)}
+        >
+          {profileImage ? (
+            <img
+              src={profileImage}
+              alt="Profile"
+              className="h-10 w-10 rounded-full object-cover"
+            />
+          ) : (
+            <User />
+          )}
+        </button>
+        {showProfilePopup && (
+          <ProfilePopup
+            onClose={() => setShowProfilePopup(false)}
+            onLogout={onLogout}
+            profileImage={profileImage}
+            currentUser={currentUser}
+          />
+        )}
+      </div>
+    ) : (
+      <>
+        <Link to="/signup" className="signup-btn">
+          회원가입
+        </Link>
+        <Link to="/login" className="login-btn">
+          로그인
+        </Link>
+      </>
+    )}
+  </div>
+</header>
           <div className="sort-buttons">
             <button
               className={`sort-btn ${sortOrder === "latest" ? "active" : ""}`}
@@ -976,7 +955,11 @@ function MyPage({ profileImage, setProfileImage, currentUser, onLogout }) {
     <div className="app">
       <header className="header">
         <div className="logo" onClick={() => navigate("/")}>
-          ☁️
+          <img
+              src="/logo.png"
+              alt="Logo"
+              className="logo-image"
+          />
         </div>
         <div className="user-info">
           {profileImage ? (
@@ -1122,7 +1105,11 @@ function ChangePasswordPage({currentUser}) {
     <div className="app">
       <header className="header">
         <div className="logo" onClick={() => navigate("/")}>
-          ☁️
+          <img
+            src="/logo.png"
+            alt="Logo"
+            className="logo-image"
+          />
         </div>
         <div className="user-info">
           <User size={26} /> {currentUser?.userName || "USER"}
@@ -1190,7 +1177,11 @@ function SignUpPage() {
     <div className="app">
       <header className="header">
         <div className="logo" onClick={() => navigate("/")}>
-          ☁️
+          <img
+            src="/logo.png"
+            alt="Logo"
+            className="logo-image"
+          />
         </div>
       </header>
 
@@ -1257,73 +1248,71 @@ function LoginPage({ onLogin }) {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 font-sans text-gray-800">
+    <div className="login-page">
       <header className="header">
         <div className="logo" onClick={() => navigate("/")}>
-          ☁️
+          <img
+            src="/logo.png"
+            alt="Logo"
+            className="logo-image"
+          />
         </div>
       </header>
-      <div className="w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-lg">
-        <h2 className="mb-6 text-3xl font-bold">로그인</h2>
-        <div className="space-y-4">
-          <div className="text-left">
-            <label className="mb-2 block text-sm font-medium text-gray-700">
-              아이디
+      <div className="login-container">
+        <h2 className="login-title">로그인</h2>
+        <div className="login-form">
+          <div className="text-form">
+            <label className="input-label">
+              ID
             </label>
             <input
               type="text"
               placeholder="아이디"
               value={id}
               onChange={(e) => setId(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="form-input"
             />
           </div>
-          <div className="text-left">
-            <label className="mb-2 block text-sm font-medium text-gray-700">
-              비밀번호
+          <div className="text-form">
+            <label className="input-label">
+              PWD
             </label>
             <input
               type="password"
               placeholder="비밀번호"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="form-input"
             />
           </div>
-          <button
-            className="w-full rounded-xl bg-blue-600 py-3 font-medium text-white shadow transition hover:bg-blue-700"
+          
+        </div>
+        <div className="login-links">
+          <Link
+            to="/signup"
+            className="login-link"
+          >
+            회원가입
+          </Link>
+          <Link
+            to="/findid"
+            className="login-link"
+          >
+            아이디 찾기
+          </Link>
+          <Link
+            to="/findpassword"
+            className="login-link"
+          >
+            비밀번호 찾기
+          </Link>
+        </div>
+        <button
+            className="login-btn"
             onClick={handleLogin}
           >
             로그인
           </button>
-        </div>
-        <div className="mt-6 text-sm text-gray-500">
-          계정이 없으신가요?{" "}
-          <Link
-            to="/signup"
-            className="font-medium text-blue-600 hover:underline"
-          >
-            회원가입
-          </Link>
-          <div className="mt-6 text-sm text-gray-500">
-            아이디를 까먹으셨나요?
-            <Link
-              to="/findid"
-              className="font-medium text-blue-600 hover:underline"
-            >
-              아이디 찾기
-            </Link>
-          </div>
-          <div className="mt-6 text-sm text-gray-500">
-            비밀번호를 까먹으셨나요?
-            <Link
-              to="/findpassword"
-              className="font-medium text-blue-600 hover:underline"
-            >
-              비밀번호 찾기
-            </Link>
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -1360,7 +1349,11 @@ function FindIdentificationPage() {
     <div className="app">
       <header className="header">
         <div className="logo" onClick={() => navigate("/")}>
-          ☁️
+          <img
+            src="/logo.png"
+            alt="Logo"
+            className="logo-image"
+          />
         </div>
         <div className="user-info"></div>
       </header>
@@ -1413,7 +1406,11 @@ function FindPasswordPage() {
     <div className="app">
       <header className="header">
         <div className="logo" onClick={() => navigate("/")}>
-          ☁️
+          <img
+            src="/logo.png"
+            alt="Logo"
+            className="logo-image"
+          />
         </div>
         <div className="user-info"></div>
       </header>
@@ -1521,7 +1518,11 @@ function NewPostPage({ isLoggedIn, profileImage, onAddPost, currentUser }) {
       <div className="new-post-content-area">
         <div className="new-post-sidebar">
           <div className="logo" onClick={() => navigate("/")}>
-            ☁️
+            <img
+              src="/logo.png"
+              alt="Logo"
+              className="logo-image"
+            />
           </div>
           <div className="category-section">
             <h3 className="category-title">카테고리</h3>
@@ -1623,7 +1624,11 @@ function MyPostsPage({ isLoggedIn, profileImage, posts, currentUser }) {
     <div className="myposts-page-container">
       <header className="main-header">
         <div className="logo" onClick={() => navigate("/")}>
-          ☁️
+          <img
+            src="/logo.png"
+            alt="Logo"
+            className="logo-image"
+          />
         </div>
         <div className="right-header-wrapper">
           <div className="search-bar-container">{/* 검색창 */}</div>

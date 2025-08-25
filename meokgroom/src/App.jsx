@@ -379,6 +379,7 @@ function PostDetailPage({
   profileImage,
   posts = [],
   setPosts = () => {},
+  currentUser,
 }) {
   const { state } = useLocation();
   const { id } = useParams();
@@ -428,12 +429,12 @@ function PostDetailPage({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ Liked: !Liked }), // ✅ 본문에 좋아요 상태를 포함하여 전송
+        body: JSON.stringify({ liked: !liked }), // ✅ 본문에 좋아요 상태를 포함하여 전송
       });
 
       if (response.ok) {
         // ... 성공적으로 좋아요/좋아요 취소 처리 후 UI 업데이트
-        setLiked(!Liked);
+        setLiked(!liked);
         setPost((prevPost) => {
           const newLikes = Liked
             ? prevPost.likes.filter((name) => name !== currentUser.userName)

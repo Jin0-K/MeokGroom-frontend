@@ -20,7 +20,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
-import "./styles.css";
+import "./styles/MainBoardPage.css"
 
 // ✅ 프로필 이미지 업로드 기능이 추가된 ProfilePopup
 const ProfilePopup = ({
@@ -436,7 +436,7 @@ function PostDetailPage({
         // ... 성공적으로 좋아요/좋아요 취소 처리 후 UI 업데이트
         setLiked(!liked);
         setPost((prevPost) => {
-          const newLikes = Liked
+          const newLikes = liked
             ? prevPost.likes.filter((name) => name !== currentUser.userName)
             : [...prevPost.likes, currentUser.userName];
           return { ...prevPost, likes: newLikes };
@@ -1032,7 +1032,7 @@ function MyPage({ profileImage, setProfileImage, currentUser, onLogout }) {
 }
 
 // 비밀번호 변경 페이지
-function ChangePasswordPage() {
+function ChangePasswordPage({currentUser}) {
   const location = useLocation();
   const navigate = useNavigate();
   const [newPassword, setNewPassword] = useState("");

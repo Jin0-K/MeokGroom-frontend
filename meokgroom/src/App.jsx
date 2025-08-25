@@ -23,7 +23,15 @@ import { v4 as uuidv4 } from "uuid";
 import "./styles.css";
 
 // ✅ 프로필 이미지 업로드 기능이 추가된 ProfilePopup
-const ProfilePopup = ({ onClose, onLogout, profileImage, currentUser, setIsLoggedIn, setCurrentUser, setProfileImage }) => {
+const ProfilePopup = ({
+  onClose,
+  onLogout,
+  profileImage,
+  currentUser,
+  setIsLoggedIn,
+  setCurrentUser,
+  setProfileImage,
+}) => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -420,14 +428,14 @@ function PostDetailPage({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ isLiked: !isLiked }), // ✅ 본문에 좋아요 상태를 포함하여 전송
+        body: JSON.stringify({ Liked: !Liked }), // ✅ 본문에 좋아요 상태를 포함하여 전송
       });
 
       if (response.ok) {
         // ... 성공적으로 좋아요/좋아요 취소 처리 후 UI 업데이트
-        setIsLiked(!isLiked);
+        setLiked(!Liked);
         setPost((prevPost) => {
-          const newLikes = isLiked
+          const newLikes = Liked
             ? prevPost.likes.filter((name) => name !== currentUser.userName)
             : [...prevPost.likes, currentUser.userName];
           return { ...prevPost, likes: newLikes };
@@ -1294,7 +1302,7 @@ function LoginPage({ onLogin }) {
 // 아이디 찾는 페이지
 function FindIdentificationPage() {
   const navigate = useNavigate();
-
+  const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const handleFindId = async () => {
     try {

@@ -63,7 +63,8 @@ function ChangePasswordPage({ currentUser }) {
           <img src="/logo.png" alt="Logo" className="logo-image" />
         </div>
         <div className="user-info">
-          <User size={26} /> {currentUser?.userName || "USER"}
+          <User size={26} /> 
+           // currentUser?.userName || "USER"   // css편집후 저 왼쪽 문장을 중괄호로 묶어주세요.
         </div>
       </header>
 

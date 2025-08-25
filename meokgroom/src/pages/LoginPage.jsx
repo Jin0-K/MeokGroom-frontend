@@ -31,7 +31,7 @@ function LoginPage({ onLogin }) {
    //   alert("로그인 중 문제가 발생했습니다.");
    // }
    //이 곳이 파일 만들고 해제해야하는 부분의 끝
-   navigate("/mypage");  // css 파일 만들고 이 부분은 지우세요 
+   navigate("/mypage");  // css 파일 만들고 이 부분은 지우세요, 지금은 mypage로 해놓았지만 , myposts일땐 myposts, 
   };
 
   return (

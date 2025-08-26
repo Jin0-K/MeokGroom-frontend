@@ -12,6 +12,9 @@ function MainBoardPage({
   posts,
   setPosts,
   currentUser,
+  setIsLoggedIn, // Add this line
+  setCurrentUser, // Add this line
+  setProfileImage, // Add this line
 }) {
   const [searchText, setSearchText] = useState("");
   const [sortOrder, setSortOrder] = useState("latest");

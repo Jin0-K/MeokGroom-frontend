@@ -9,7 +9,7 @@ function FindIdentificationPage() {
   const [email, setEmail] = useState("");
   const handleFindId = async () => {
     try {
-      const response = await fetch("/auth/findid", {
+      const response = await fetch("http://localhost:8081/auth/findid", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

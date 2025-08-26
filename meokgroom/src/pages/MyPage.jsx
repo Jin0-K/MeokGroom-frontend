@@ -56,7 +56,7 @@ function MyPage({ profileImage, setProfileImage, currentUser, onLogout }) {
 
     try {
       const token = localStorage.getItem("authToken");
-      const response = await fetch("/users/me", {
+      const response = await fetch("http://localhost:8081/users/me", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

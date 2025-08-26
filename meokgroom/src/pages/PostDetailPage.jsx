@@ -29,12 +29,12 @@ function PostDetailPage({
   useEffect(() => {
     const fetchPostAndComments = async () => {
       try {
-        const postRes = await fetch(`/posts/${id}`);
+        const postRes = await fetch(`http://localhost:8082/posts/${id}`);
         if (!postRes.ok) throw new Error("게시물 로드 실패");
         const postData = await postRes.json();
         setPost(postData);
 
-        const cmtRes = await fetch(`/posts/${id}/comments`);
+        const cmtRes = await fetch(`http://localhost:8083/posts/${id}/comments`);
         if (!cmtRes.ok) throw new Error("댓글 로드 실패");
         const cmtData = await cmtRes.json();
         setComments(cmtData);
@@ -49,7 +49,7 @@ function PostDetailPage({
     try {
       const token = localStorage.getItem("authToken");
       const method = "PATCH";
-      const response = await fetch(`/posts/${id}`, {
+      const response = await fetch(`http://localhost:8082/posts/${id}`, {
         method: method,
         headers: {
           "Content-Type": "application/json",
@@ -79,7 +79,7 @@ function PostDetailPage({
     if (!newComment.trim()) return;
 
     try {
-      const response = await fetch(`/posts/${id}/comments`, {
+      const response = await fetch(`http://localhost:8083/posts/${id}/comments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -134,7 +134,7 @@ function PostDetailPage({
     if (!text) return;
 
     try {
-      const response = await fetch(`/comments/${editingCommentId}`, {
+      const response = await fetch(`http://localhost:8083/comments/${editingCommentId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -171,7 +171,7 @@ function PostDetailPage({
     }
     try {
       const token = localStorage.getItem("authToken");
-      const response = await fetch(`/comments/${commentId}`, {
+      const response = await fetch(`http://localhost:8083/comments/${commentId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

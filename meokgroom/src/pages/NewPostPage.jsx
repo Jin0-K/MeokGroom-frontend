@@ -23,7 +23,7 @@ function NewPostPage({ isLoggedIn, profileImage, onAddPost, currentUser }) {
       userName: currentUser?.userName,
     };
     try {
-      const response = await fetch("/posts", {
+      const response = await fetch("http://localhost:8082/posts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

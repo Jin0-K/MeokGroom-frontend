@@ -6,6 +6,7 @@ html, body {
   overflow: hidden; /* Optional: Prevents scrollbars if content overflows */
 }
 
+/*
 :root {
   --color-default-bg: #d6dee7;
   --color-darker-bg: #c8cfd6;
@@ -19,3 +20,4 @@ html, body {
   --color-placeholder-grey: #707274d8;
   --color-placeholder-white: #eff2f5d8;
 }
+  */

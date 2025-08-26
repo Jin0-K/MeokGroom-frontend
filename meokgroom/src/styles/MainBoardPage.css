@@ -99,6 +99,7 @@
 /* Right Main Content Area */
 .main-content-area {
   flex-grow: 1;
+  height: 100vw;
   padding: 32px 48px;
   display: flex;
   position: relative;
@@ -201,6 +202,15 @@
   color: #475569;
 }
 
+/* Topbar */
+.topbar {
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
 /* Sort buttons styles */
 .sort-buttons {
   margin-bottom: 24px;
@@ -232,6 +242,20 @@
   width: 100%;
   height: 2px;
   background-color: #1e293b;
+}
+/* Create New Post Button */
+.post-create-btn {
+  width: 120px;
+  padding: 6px 4px;
+  border: none;
+  border-radius: 9999px;
+  background-color: var(--color-dark-navy);
+  color: var(--color-white);
+  font-size: 24px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: outset 0 2px 4px rgba(0,0,0,0.2);
+  transition: background-color 0.2s, transform 0.2s;
 }
 
 /* Post List */

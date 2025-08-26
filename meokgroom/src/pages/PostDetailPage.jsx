@@ -253,13 +253,42 @@ function PostDetailPage({
 
   return (
     <div className="post-detail-page">
-      <header className="main-header">
-        <div className="right-header-wrapper">
-          <div className="search-bar-container">
-            <input
+      <div className="sidebar">
+        <div className="sidebar-header">
+          <Link to="/" className="logo-link">
+            <img src="/logo.png" alt="Logo" className="logo-image" />
+          </Link>
+        </div>
+        <div className="category-section">
+          <h3 className="category-title">카테고리</h3>
+          <ul className="category-list">
+            <li>
+              <button className="category-btn active">전체</button>
+            </li>
+            <li>
+              <button className="category-btn">동물/반려동물</button>
+            </li>
+            <li>
+              <button className="category-btn">여행</button>
+            </li>
+            <li>
+              <button className="category-btn">건강/헬스</button>
+            </li>
+            <li>
+              <button className="category-btn">연예인</button>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div className="main-content-area">
+        <header className="main-header">
+          <div /* className="search-bar-container" */>
+            {/* <input
               type="text"
               placeholder="검색"
               className="search-input"
+              // value={searchTerm}
+              // onChange={(e) => setSearchTerm(e.target.value)}
             />
             <button className="search-button">
               <svg
@@ -276,7 +305,7 @@ function PostDetailPage({
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
-            </button>
+            </button> */}
           </div>
 
           <div className="header-actions">
@@ -316,149 +345,138 @@ function PostDetailPage({
               </>
             )}
           </div>
-        </div>
-      </header>
+        </header>
+      
 
-      <div className="sidebar">
-        <div className="sidebar-header">
-          <Link to="/" className="logo-link">
-            <img src="/logo.png" alt="Logo" className="logo-image" />
-          </Link>
-        </div>
-        <div className="category-section">
-          <h3 className="category-title">카테고리</h3>
-          <ul className="category-list">
-            <li>
-              <button className="category-btn active">전체</button>
-            </li>
-            <li>
-              <button className="category-btn">동물/반려동물</button>
-            </li>
-            <li>
-              <button className="category-btn">여행</button>
-            </li>
-            <li>
-              <button className="category-btn">건강/헬스</button>
-            </li>
-            <li>
-              <button className="category-btn">연예인</button>
-            </li>
-          </ul>
-        </div>
-      </div>
 
-      <div className="post-detail-card">
-        <div className="post-author-section">
-          <div className="author-avatar">👤</div>
-          <div className="author-info">
-            <p className="author-name">{post.userName}</p>
-            <p className="post-date">{post.date}</p>
-          </div>
-        </div>
 
-        {post.image && (
-          <div className="post-image">
-            <img src={post.image} alt="post" />
-          </div>
-        )}
-
-        <h2 className="post-title">{post.title}</h2>
-        {isEditing ? (
-          <textarea
-            value={editedContent}
-            onChange={(e) => setEditedContent(e.target.value)}
-            className="w-full border rounded p-2"
-          />
-        ) : (
-          <p className="post-content">{post.content}</p>
-        )}
-
-        <div className="post-stats">
-          <button onClick={handleLike}>
-            <span>
-              <Heart fill={liked ? "red" : "none"} /> {post.likes}
-            </span>
-          </button>
-          <span>
-            <MessageCircle /> {post.comments}
-          </span>
-        </div>
-
-        <div className="post-actions">
-          <button onClick={handleEditPost} className="action-btn">
-            <Pencil />
-          </button>
-          <button onClick={handleDeletePost} className="action-btn">
-            <Trash2 />
-          </button>
-        </div>
-
-        <div className="comment-section">
-          <h3>댓글</h3>
-          <div className="comment-input flex space-x-2 mt-2">
-            <input
-              type="text"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="댓글을 입력하세요"
-              className="flex-1 border rounded px-2 py-1"
-            />
-            <button
-              onClick={handleAddComment}
-              className="px-4 py-1 bg-blue-500 text-white rounded"
-            >
-              등록
-            </button>
-          </div>
-
-          <ul className="mt-4 space-y-2">
-            {comments.map((c) => (
-              <li key={c.id} className="border-b pb-2">
-                {editingCommentId === c.id ? (
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="text"
-                      value={editedCommentText}
-                      onChange={(e) => setEditedCommentText(e.target.value)}
-                      className="flex-1 border rounded px-2 py-1"
-                    />
-                    <button
-                      onClick={saveEditComment}
-                      className="px-3 py-1 bg-green-500 text-white rounded"
-                    >
-                      저장
-                    </button>
-                    <button
-                      onClick={cancelEditComment}
-                      className="px-3 py-1 bg-gray-300 rounded"
-                    >
-                      취소
-                    </button>
-                  </div>
+        <div className="post-detail-card">
+          <div className="post-topbar">
+            <div className="post-author-section">
+              <div className="author-avatar">
+                {post.profileImage ? (
+                  <img
+                    src={post.profileImage}
+                    alt={`${post.userName} profile`}
+                    className="autor-avatar-img"
+                  />
                 ) : (
-                  <div className="flex justify-between items-center">
-                    <span>
-                      <strong>{c.userName}</strong>: {c.text}
-                    </span>
-                    <div className="flex space-x-2">
+                  <User size={32} className="auto-avatar-img" />
+                )}
+              </div>
+              <div className="author-info">
+                <p className="author-name">{ post.userName }</p>
+                <p className="post-date">{ post.date }</p>
+              </div>
+            </div>
+            <div className="post-actions">
+              <button onClick={handleEditPost} className="action-btn">
+                <Pencil />
+              </button>
+              <button onClick={handleDeletePost} className="action-btn">
+                <Trash2 />
+              </button>
+            </div>
+          </div>
+
+          {post.image && (
+            <div className="post-image">
+              <img src={post.image} alt="post" />
+            </div>
+          )}
+
+          <h2 className="post-title">{post.title}</h2>
+          {isEditing ? (
+            <textarea
+              value={editedContent}
+              onChange={(e) => setEditedContent(e.target.value)}
+              className="w-full border rounded p-2"
+            />
+          ) : (
+            <p className="post-content">{post.content}</p>
+          )}
+
+          <div className="post-stats">
+            <button className="like-btn" onClick={handleLike}>
+              <span>
+                <Heart fill={liked ? "red" : "none"} /> {post.likes}
+              </span>
+            </button>
+            {/* <span>
+              <MessageCircle /> {post.comments}
+            </span> */}
+          </div>
+        </div>
+
+
+        <div className="post-detail-card">
+          <div className="comment-section">
+            <h3>댓글 {post.comments}</h3>
+            <div className="comment-input">
+              <input
+                type="text"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="댓글을 입력하세요"
+                className="comment-input-text"
+              />
+              <button
+                onClick={handleAddComment}
+                className="comment-input-btn"
+              >
+                입력
+              </button>
+            </div>
+
+            <ul className="action-btn">
+              {comments.map((c) => (
+                <li key={c.id} className="border-b pb-2">
+                  {editingCommentId === c.id ? (
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="text"
+                        value={editedCommentText}
+                        onChange={(e) => setEditedCommentText(e.target.value)}
+                        className="flex-1 border rounded px-2 py-1"
+                      />
                       <button
-                        onClick={() => startEditComment(c.id, c.text)}
-                        className="action-btn"
+                        onClick={saveEditComment}
+                        className="px-3 py-1 bg-green-500 text-white rounded"
                       >
-                        <Pencil size={16} />
+                        저장
                       </button>
                       <button
-                        onClick={() => handleDeleteComment(c.id)}
-                        className="action-btn"
+                        onClick={cancelEditComment}
+                        className="px-3 py-1 bg-gray-300 rounded"
                       >
-                        <Trash2 size={16} />
+                        취소
                       </button>
                     </div>
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
+                  ) : (
+                    <div className="flex justify-between items-center">
+                      <span>
+                        <strong>{c.userName}</strong>: {c.text}
+                      </span>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => startEditComment(c.id, c.text)}
+                          className="action-btn"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteComment(c.id)}
+                          className="action-btn"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </div>

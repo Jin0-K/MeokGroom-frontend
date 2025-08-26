@@ -113,32 +113,6 @@
   transform: translateY(-5px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
-
-.my-post-card:last-child {
-  @apply border-b-0;
-}
-
-.post-title {
-  @apply text-lg font-semibold text-gray-800 mb-1;
-}
-
-.post-content {
-  @apply text-gray-600 text-sm leading-relaxed mb-3;
-}
-
-/* Post stats (likes, comments) */
-.post-stats {
-  @apply flex items-center gap-4 text-gray-500 text-sm;
-}
-
-.stat-item {
-  @apply flex items-center gap-1;
-}
-
-.stat-count {
-  @apply font-medium;
-}
-
 /* Message for no posts */
 .no-posts-message {
   color: var(--color-darker-bg);

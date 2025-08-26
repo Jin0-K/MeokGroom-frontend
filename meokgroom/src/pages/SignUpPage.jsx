@@ -11,7 +11,7 @@ function SignUpPage() {
   const navigate = useNavigate();
   const handleSignup = async () => {
     try {
-      const response = await fetch("/auth/register", {
+      const response = await fetch("http://localhost:8081/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -34,7 +34,7 @@ function PostDetailPage({
         const postData = await postRes.json();
         setPost(postData);
 
-        const cmtRes = await fetch(`/posts/${id}/comments`);
+        const cmtRes = await fetch(`http://localhost:8083/posts/${id}/comments`);
         if (!cmtRes.ok) throw new Error("댓글 로드 실패");
         const cmtData = await cmtRes.json();
         setComments(cmtData);
@@ -79,7 +79,7 @@ function PostDetailPage({
     if (!newComment.trim()) return;
 
     try {
-      const response = await fetch(`http://localhost:8082/posts/${id}/comments`, {
+      const response = await fetch(`http://localhost:8083/posts/${id}/comments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

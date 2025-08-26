@@ -310,7 +310,7 @@ function PostDetailPage({
 
           <div className="header-actions">
             {isLoggedIn ? (
-              <div className="profile-container relative">
+              <div className="profile-container">
                 <button
                   className="profile-btn"
                   onClick={() => setShowProfilePopup((v) => !v)}

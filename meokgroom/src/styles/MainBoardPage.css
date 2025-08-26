@@ -272,7 +272,7 @@
   padding: 24px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s, box-shadow 0.2s;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-darker-bg);
 }
 
 .post-card:hover {
@@ -321,10 +321,11 @@
   line-height: 1.5;
 }
 
-.no-posts-message {
+.main-no-posts-message {
   text-align: center;
-  color: #718096;
-  margin-top: 5rem;
+  font-size: 18px;
+  color: var(--color-white);
+  margin-top: 128px;
 }
 
 /* Pagination */

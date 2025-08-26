@@ -1,0 +1,117 @@
+:root {
+  --color-default-bg: #d6dee7;
+  --color-darker-bg: #c8cfd6;
+  --color-dark-navy: #3e4a5b;
+  --color-darker-navy: #353f4d;
+  --color-white: #fafafa;
+  --color-white-shadow: #ececec;
+  --color-title: #1e293b;
+  --color-subtitle: #485362;
+  --color-text-default: #1e293b;
+  --color-placeholder-grey: #707274d8;
+  --color-placeholder-white: #eff2f5d8;
+}
+
+.newpost-page {
+    display: flex;
+    width: 100%;
+    background-color: var(--color-default-bg);
+}
+
+.newpost-container {
+  background-color: var(--color-white);
+  padding: 40px;
+  margin: 20px 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.newpost-title-input {
+    padding: 12px 8px;
+    margin-bottom: 12px;
+    border: none;
+    background-color: transparent;
+    font-size: 28px;
+    color: var(--color-title);
+}
+
+.newpost-title-input:focus {
+    outline: none;
+}
+
+.newpost-title-input::placeholder {
+    color: var(--color-placeholder-grey);
+}
+
+.post-content-textarea {
+    width: 100%;
+    height: 40vh;
+    resize: none;
+    padding: 12px 12px;
+    border: none;
+    border-radius: 12px;
+    background-color:var(--color-white-shadow);
+    color: var(--color-text-default);
+    font-size: 16px;
+    line-height: 1.5;
+    box-shadow: inset 4px 4px 4px rgba(0, 0, 0, 0.1);
+}
+
+.post-content-textarea:focus {
+    outline: none;
+}
+
+.post-tags {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+}
+
+.tag-button {
+    background-color: var(--color-default-bg);
+    border-radius: 999px;
+    border: none;
+    padding: 8px 12px;
+    margin: 8px 0px;
+    color: var(--color-subtitle);
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: none;
+    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.15);  
+}
+
+.tag-button:active {
+    background-color: var(--color-darker-bg);
+    box-shadow: inset 2px 2px 2px rgba(0, 0, 0, 0.15);
+}
+
+.newpost-action-btns {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.newpost-action-btns button {
+    width: 100px;
+    margin-top: 24px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    border: 2px solid var(--color-dark-navy);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.newpost-cancel-btn {
+    background-color: var(--color-white);
+    color: var(--color-dark-navy);
+}
+
+.newpost-complete-btn {
+    background-color: var(--color-dark-navy);
+    color: var(--color-white);
+}

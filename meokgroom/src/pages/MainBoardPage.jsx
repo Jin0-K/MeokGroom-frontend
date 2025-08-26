@@ -165,31 +165,35 @@ function MainBoardPage({
               )}
             </div>
           </header>
-          <div className="sort-buttons">
-            <button
-              className={`sort-btn ${
-                sortOrder === "latest" ? "active" : ""
-              }`}
-              onClick={() => setSortOrder("latest")}
-            >
-              최신순
-            </button>
-            <button
-              className={`sort-btn ${
-                sortOrder === "popular" ? "active" : ""
-              }`}
-              onClick={() => setSortOrder("popular")}
-            >
-              인기순
-            </button>
-            {isLoggedIn && (
+          <div className="topbar">
+            <div className="sort-buttons">
               <button
-                className="post-create-btn"
-                onClick={() => navigate("/new-post")}
+                className={`sort-btn ${
+                  sortOrder === "latest" ? "active" : ""
+                }`}
+                onClick={() => setSortOrder("latest")}
               >
-                새 게시물 작성
+                최신순
               </button>
-            )}
+              <button
+                className={`sort-btn ${
+                  sortOrder === "popular" ? "active" : ""
+                }`}
+                onClick={() => setSortOrder("popular")}
+              >
+                인기순
+              </button>
+            </div>
+            <div className="post-create-container">
+              {isLoggedIn && (
+                <button
+                  className="post-create-btn"
+                  onClick={() => navigate("/new-post")}
+                >
+                  +
+                </button>
+              )}
+            </div>
           </div>
           <div className="post-list">
             {currentPosts.map((post) => (
@@ -218,7 +222,7 @@ function MainBoardPage({
               </div>
             ))}
             {currentPosts.length === 0 && (
-              <p className="no-posts-message">작성한 게시글이 없습니다.</p>
+              <p className="main-no-posts-message">작성한 게시글이 없습니다.</p>
             )}
           </div>
           {totalPages > 1 && (

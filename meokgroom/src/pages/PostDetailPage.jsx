@@ -348,8 +348,6 @@ function PostDetailPage({
         </header>
       
 
-
-
         <div className="post-detail-card">
           <div className="post-topbar">
             <div className="post-author-section">

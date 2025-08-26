@@ -86,3 +86,87 @@
   box-shadow: inset 2px 2px 4px rgba(0,0,0,0.2);
 }
 
+/* Styles for the full-screen overlay */
+.popup-overlay {
+  position: fixed; /* Positions the overlay over the entire viewport */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent dark background */
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  z-index: 1000; /* Ensures the popup is on top of other content */
+}
+
+/* Styles for the popup box itself */
+.popup {
+  background-color: var(--color-white);
+  padding: 36px;
+  border-radius: 24px; 
+  box-shadow: 2px 4px 15px rgba(0, 0, 0, 0.2); 
+  text-align: center;
+  width: 100%;
+  max-width: 400px;
+  transform: scale(0.9); /* Starts slightly smaller for a subtle animation */
+  animation: pop-in 0.3s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Animation for the popup to "pop" into view */
+@keyframes pop-in {
+  to {
+    transform: scale(1);
+  }
+}
+
+/* Styles for the icon container */
+.popup-icon {
+  margin-bottom: 1rem;
+  color: var(--color-dark-navy); 
+}
+
+/* Styles for the text content */
+.popup p {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-text-default);
+  margin-bottom: 1.5rem;
+}
+
+/* Styles for the buttons container */
+.popup-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* Common styles for both buttons */
+.popup-buttons button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.popup-buttons button:first-child {
+  background-color: var(--color-dark-navy); 
+  color: var(--color-white);
+}
+
+.popup-buttons button:first-child:hover {
+  background-color: var(--color-darker-navy);
+  transform: translateY(-2px); /* Slight lift on hover */
+}
+
+.popup-buttons button:last-child {
+  background-color: var(--color-default-bg); /* Gray for the "No" (cancel) button */
+  color: var(--color-dark-navy);
+}
+
+.popup-buttons button:last-child:hover {
+  background-color: var(--color-darker-bg);
+  transform: translateY(-2px);
+}

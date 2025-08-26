@@ -48,7 +48,7 @@ function MyPage({ profileImage, setProfileImage, currentUser, onLogout }) {
   const handleLeave = async (onLogout) => {
     if (
       !window.confirm(
-        "탈퇴 시 회원정보는 복구될 수 없습니다. 정말 탈퇴하겠습니까?"
+        "탈퇴 시 회원정보는 복구될 수 없습니다."
       )
     ) {
       return;

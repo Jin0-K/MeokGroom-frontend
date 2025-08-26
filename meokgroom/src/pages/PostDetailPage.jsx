@@ -349,7 +349,17 @@ function PostDetailPage({
 
       <div className="post-detail-card">
         <div className="post-author-section">
-          <div className="author-avatar">👤</div>
+          <div className="author-avatar w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+    {post.profileImage ? (
+      <img
+        src={post.profileImage}
+        alt={`${post.userName} 프로필`}
+        className="w-full h-full object-cover"
+      />
+    ) : (
+      <User size={28} className="text-gray-500" />
+    )}
+  </div>
           <div className="author-info">
             <p className="author-name">{post.userName}</p>
             <p className="post-date">{post.date}</p>

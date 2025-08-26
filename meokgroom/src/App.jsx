@@ -23,6 +23,7 @@ import "./styles/LoginPage.css";
 import "./styles/SignUpPage.css";
 import "./styles/FindIdentificationPage.css";
 import "./styles/FindPasswordPage.css";
+import "./styles/ChangePasswordPage.css"
 
 export default function App() {
   const fetchCurrentUser = async () => {

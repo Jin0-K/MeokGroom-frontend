@@ -142,7 +142,7 @@
   border: none;
   border-radius: 9999px;
   background-color: var(--color-dark-navy);
-  color: #ffffff;
+  color: var(--color-white);
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;

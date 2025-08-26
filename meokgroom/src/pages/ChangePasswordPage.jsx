@@ -57,38 +57,40 @@ function ChangePasswordPage({ currentUser }) {
   };
 
   return (
-    <div className="app">
+    <div className="changepsswd-page">
       <header className="header">
         <div className="logo" onClick={() => navigate("/")}>
           <img src="/logo.png" alt="Logo" className="logo-image" />
         </div>
-        <div className="user-info">
+        {/* <div className="user-info">
           <User size={26} /> 
-           // currentUser?.userName || "USER"   // css편집후 저 왼쪽 문장을 중괄호로 묶어주세요.
-        </div>
+           {currentUser?.userName || "USER"}   // css편집후 저 왼쪽 문장을 중괄호로 묶어주세요.
+        </div> */}
       </header>
 
-      <main className="main-box">
-        <h2>비밀번호 변경</h2>
-        <div className="form-group">
-          <input
-            type="password"
-            placeholder="새 비밀번호"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            className="w-full rounded-md border border-gray-300 p-3 focus:border-blue-500 focus:outline-none"
-          />
+      <main className="changepsswd-container">
+        <h2 className="changepsswd-title">비밀번호 변경</h2>
+        <div className="chngpsswd-form">
+          <div className="chngpsswd-form-group">
+            <label className="chngpsswd-input-label">새로운 비밀번호</label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="chngpsswd-form-input"
+            />
+          </div>
+          <div className="chngpsswd-form-group">
+            <label className="chngpsswd-input-label">비밀번호 확인</label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="chngpsswd-form-input"
+            />
+          </div>
         </div>
-        <div className="form-group">
-          <input
-            type="password"
-            placeholder="새 비밀번호 확인"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full rounded-md border border-gray-300 p-3 focus:border-blue-500 focus:outline-none"
-          />
-        </div>
-        <button className="menu-btn" onClick={handleChangePassword}>
+        <button className="chngpsswd-complete-btn" onClick={handleChangePassword}>
           완료
         </button>
       </main>

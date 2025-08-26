@@ -92,12 +92,12 @@ function MyPage({ profileImage, setProfileImage, currentUser, onLogout }) {
   };
 
   return (
-    <div className="app">
+    <div className="mypage-page">
       <header className="header">
         <div className="logo" onClick={() => navigate("/")}>
           <img src="/logo.png" alt="Logo" className="logo-image" />
         </div>
-        <div className="user-info">
+        {/* <div className="user-info">
           {profileImage ? (
             <img
               src={profileImage}
@@ -108,28 +108,34 @@ function MyPage({ profileImage, setProfileImage, currentUser, onLogout }) {
             <User size={26} />
           )}
           {currentUser?.userName}
-        </div>
+        </div> */}
       </header>
 
-      <main className="main-content">
+      <div className="mypage-container">
         <div className="profile-section">
-          <div className="profile-icon relative group">
-            <div className="w-[100px] h-[100px] rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+          <div className="mypage-user-avatar-container">
+            <label htmlFor="profile-upload" className="mypage-user-avatar-label">
               {profileImage ? (
                 <img
                   src={profileImage}
                   alt="Profile"
-                  className="h-full w-full object-cover"
+                  className="mypage-user-avatar"
                 />
               ) : (
                 <User size={100} />
               )}
-            </div>
-            <label
+            </label>
+            <input
+              id="profile-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              style={{ display: "none" }} // This hides the file input from view
+            />
+            {/* <label
               htmlFor="profile-upload"
-              className="absolute inset-0 flex items-center justify-center rounded-full bg-black bg-opacity-50 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100 cursor-pointer"
+              className="mypage-user-avatar-upload"
             >
-              <span className="text-center text-sm">업로드</span>
               <input
                 id="profile-upload"
                 type="file"
@@ -137,9 +143,9 @@ function MyPage({ profileImage, setProfileImage, currentUser, onLogout }) {
                 onChange={handleImageChange}
                 className="hidden"
               />
-            </label>
+            </label> */}
           </div>
-          <h2>Welcome, {currentUser?.userName}</h2>
+          <h2 className="mypage-username">{currentUser?.userName}</h2>
         </div>
         <div className="menu-buttons">
           <button
@@ -155,7 +161,7 @@ function MyPage({ profileImage, setProfileImage, currentUser, onLogout }) {
             계정 탈퇴
           </button>
         </div>
-      </main>
+      </div>
 
       {showPopup && (
         <div className="popup-overlay">

@@ -31,7 +31,7 @@ function ChangePasswordPage({ currentUser }) {
     }
 
     try {
-      const response = await fetch("/users/me", {
+      const response = await fetch("http://localhost:8081/users/me", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

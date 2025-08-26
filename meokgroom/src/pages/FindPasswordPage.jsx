@@ -9,7 +9,7 @@ function FindPasswordPage() {
   const [email, setEmail] = useState("");
   const handleFindPassword = async () => {
     try {
-      const response = await fetch("/auth/findpassword", {
+      const response = await fetch("http://localhost:8081/users/me", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -26,12 +26,12 @@ function MyPostsPage({ isLoggedIn, profileImage, posts, currentUser }) {
   const categories = ["전체", "동물/반려동물", "여행", "건강/헬스", "연예인"];
 
   return (
-    <div className="myposts-page-container">
-      <header className="main-header">
+    <div className="myposts-page">
+      <header className="header">
         <div className="logo" onClick={() => navigate("/")}>
           <img src="/logo.png" alt="Logo" className="logo-image" />
         </div>
-        <div className="right-header-wrapper">
+        {/* <div className="right-header-wrapper">
           <div className="search-bar-container"></div>
           <div className="header-actions">
             {isLoggedIn && (
@@ -55,32 +55,44 @@ function MyPostsPage({ isLoggedIn, profileImage, posts, currentUser }) {
               </Link>
             )}
           </div>
-        </div>
+        </div> */}
       </header>
 
-      <div className="myposts-content-area">
-        <div className="page-header-section">
+      <div className="myposts-container">
+        <div className="myposts-header">
           <h2 className="page-title">
-            {currentUser?.userName}의 최신 작성글입니다.
+            {currentUser?.userName} 님의<br/>최신 작성글
           </h2>
-          <div className="user-profile-icon">
-            <User size={30} />
+          <div className="myposts-user-avatar-container">
+            <label className="myposts-user-avatar-label">
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  className="mypage-user-avatar"
+                />
+              ) : (
+                <User size={100} />
+              )}
+            </label>
           </div>
         </div>
-        <div className="category-tabs">
-          {categories.map((category) => (
-            <button
-              key={category}
-              className={`tab-btn ${
-                activeCategory === category ? "active" : ""
-              }`}
-              onClick={() => setActiveCategory(category)}
-            >
-              {category}
-            </button>
-          ))}
+        <div className="category-tabs-container">
+          <div className="category-tabs">
+            {categories.map((category) => (
+              <button
+                key={category}
+                className={`tab-btn ${
+                  activeCategory === category ? "active" : ""
+                }`}
+                onClick={() => setActiveCategory(category)}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="post-list-area">
+        <div className="post-list">
           {currentPosts.length > 0 ? (
             currentPosts.map((post) => (
               <div
@@ -111,12 +123,12 @@ function MyPostsPage({ isLoggedIn, profileImage, posts, currentUser }) {
         </div>
 
         {totalPages > 1 && (
-          <div className="pagination flex justify-center mt-8 space-x-2">
+          <div className="pagination">
             {[...Array(totalPages)].map((_, index) => (
               <button
                 key={index + 1}
                 onClick={() => setCurrentPage(index + 1)}
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
+                className={`page-btn ${
                   currentPage === index + 1
                     ? "bg-blue-600 text-white"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"

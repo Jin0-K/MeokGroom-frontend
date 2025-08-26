@@ -24,6 +24,7 @@ import "./styles/SignUpPage.css";
 import "./styles/FindIdentificationPage.css";
 import "./styles/FindPasswordPage.css";
 import "./styles/ChangePasswordPage.css"
+import "./styles/MyPostsPage.css"
 
 export default function App() {
   const fetchCurrentUser = async () => {

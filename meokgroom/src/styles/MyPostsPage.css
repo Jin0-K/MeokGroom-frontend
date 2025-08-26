@@ -1,0 +1,145 @@
+:root {
+  --color-default-bg: #d6dee7;
+  --color-darker-bg: #c8cfd6;
+  --color-dark-navy: #3e4a5b;
+  --color-darker-navy: #353f4d;
+  --color-white: #fafafa;
+  --color-white-shadow: #ececec;
+  --color-title: #1e293b;
+  --color-subtitle: #485362;
+  --color-text-default: #1e293b;
+  --color-placeholder-grey: #707274d8;
+  --color-placeholder-white: #eff2f5d8;
+}
+
+/* General container styling */
+.myposts-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--color-default-bg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    padding: 24px;
+}
+
+/* Main content area, acting as the white container in the screenshot */
+.myposts-container {
+  background-color: var(--color-dark-navy);
+  padding: 40px 80px;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  height: fit-content;
+  width: 60%;
+  max-width: 100%;
+  text-align: center;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Page header section containing title and user icon */
+.myposts-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding-bottom: 6px;
+    gap: 12px;
+}
+
+.page-title {
+  color: var(--color-white);
+  text-align: left;
+  font-size: 32px;
+}
+
+.myposts-user-avatar-container {
+  height: 80px;
+  width: auto;
+}
+
+/* Category tabs styling */
+.category-tabs-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    
+}
+.category-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.tab-btn {
+  background-color: var(--color-default-bg);
+  border-radius: 999px;
+  border: 1px solid var(--color-subtitle);
+  padding: 8px 12px;
+  color: var(--color-subtitle);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: none;
+    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.15);  
+}
+
+.tab-btn:hover {
+    cursor: pointer;
+}
+
+.tab-btn.active {
+    background-color: var(--color-darker-bg);
+    box-shadow: inset 4px 4px 2px rgba(0, 0, 0, 0.15);
+}
+
+/* Post card list and individual card styling */
+.post-list-area {
+  
+}
+
+.my-post-card {
+  background-color: var(--color-white);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #e2e8f0;
+}
+
+.my-post-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.my-post-card:last-child {
+  @apply border-b-0;
+}
+
+.post-title {
+  @apply text-lg font-semibold text-gray-800 mb-1;
+}
+
+.post-content {
+  @apply text-gray-600 text-sm leading-relaxed mb-3;
+}
+
+/* Post stats (likes, comments) */
+.post-stats {
+  @apply flex items-center gap-4 text-gray-500 text-sm;
+}
+
+.stat-item {
+  @apply flex items-center gap-1;
+}
+
+.stat-count {
+  @apply font-medium;
+}
+
+/* Message for no posts */
+.no-posts-message {
+  color: var(--color-darker-bg);
+}

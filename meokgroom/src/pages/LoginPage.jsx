@@ -30,9 +30,7 @@ function LoginPage({ onLogin }) {
       console.error("로그인 중 오류 발생:", error);
       alert("로그인 중 문제가 발생했습니다.");
     }
-  
-  
-  };
+    };
 
   return (
     <div className="login-page">

@@ -16,7 +16,7 @@ const ProfilePopup = ({
   // Create a ref to attach to the popup's main container element
   const popupRef = useRef(null);
 
-  const handleLogout = async () => {
+  const handleLogout = async (onLogout) => {
     // ... (rest of the handleLogout function remains the same)
   };
 

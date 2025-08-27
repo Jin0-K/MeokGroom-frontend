@@ -127,6 +127,9 @@ export default function App() {
               posts={posts}
               setPosts={setPosts}
               currentUser={currentUser}
+              setIsLoggedIn={setIsLoggedIn}
+              setCurrentUser={setCurrentUser}
+              setProfileImage={setProfileImage}
             />
           }
         />

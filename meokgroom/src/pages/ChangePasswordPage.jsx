@@ -62,10 +62,9 @@ function ChangePasswordPage({ currentUser }) {
         <div className="logo" onClick={() => navigate("/")}>
           <img src="/logo.png" alt="Logo" className="logo-image" />
         </div>
-        <div className="user-info">
-          <User size={26} /> 
-           {currentUser?.userName || "USER"} 
-        </div>
+        {/* <div className="user-info">
+          <User size={26} />{currentUser?.userName || "USER"}   
+        </div> */}
       </header>
 
       <main className="changepsswd-container">

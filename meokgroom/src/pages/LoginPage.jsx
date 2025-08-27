@@ -8,38 +8,29 @@ function LoginPage({ onLogin }) {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const handleLogin = async () => {
-   try {
-     const response = await fetch("http://localhost:8081/auth/login", {
-       method: "POST",
-       headers: {
-         "Content-Type": "application/json",
-       },
-       body: JSON.stringify({ id, password }),
-     });
+    
+    try {
+      const response = await fetch("http://localhost:8081/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, password }),
+      });
 
-     if (response.ok) {
-       const data = await response.json();
-       localStorage.setItem("authToken", data.token);
-       onLogin(data.user);
-       navigate("/");
-     } else {
-       alert("로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");
-     }
-   } catch (error) {
-     console.error("로그인 중 오류 발생:", error);
-     alert("로그인 중 문제가 발생했습니다.");
-   }
-
-    // ⬇️ 백엔드 연동 비활성화: 로그인 버튼을 누르면 즉시 로그인 상태가 되도록 수정
-    const mockUserData = {
-      userName: "dummyUser",
-      email: "dummy@example.com",
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("authToken", data.token);
+        onLogin(data.user);
+        navigate("/");
+      } else {
+        alert("로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");
+      }
+    } catch (error) {
+      console.error("로그인 중 오류 발생:", error);
+      alert("로그인 중 문제가 발생했습니다.");
+    }
     };
-    localStorage.setItem("authToken", "mock-token-for-css");
-    onLogin(mockUserData);
-    alert("로그인 되었습니다.");
-   navigate("/");  // css 파일 만들고 백엔드연동비활성화부분부터 이 부분까지는 지우세요 
-  };
 
   return (
     <div className="login-page">

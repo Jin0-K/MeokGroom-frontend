@@ -81,7 +81,7 @@ export default function App() {
   const handleLogin = (userData) => {
     setIsLoggedIn(true);
     setCurrentUser(userData);
-    alert("성공적으로 로그인 되었습니다!");
+    // alert("성공적으로 로그인 되었습니다!");
   };
 
   const handleLogout = async () => {
@@ -101,9 +101,10 @@ export default function App() {
         setCurrentUser(null);
         setProfileImage(null);
         alert("로그아웃 되었습니다.");
-      } else {
-        alert("로그아웃에 실패했습니다. 다시 시도해 주세요.");
       }
+      // } else {
+      //   alert("로그아웃에 실패했습니다. 다시 시도해 주세요.");
+      // }
     } catch (error) {
       console.error("로그아웃 중 오류 발생:", error);
       alert("로그아웃 처리 중 문제가 발생했습니다.");
